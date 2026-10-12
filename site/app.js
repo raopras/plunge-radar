@@ -253,8 +253,7 @@
     var region = day.regions[state.region];
     var s = region && region.summary;
     if (!s) { setStatus('No prices for this area yet. Please check back soon.'); clearAll(); return; }
-    setStatus(ageHours > 36 ? 'These prices may be out of date: the last update was ' + Math.round(ageHours) + ' hours ago.'
-      : s.count < day.slots ? 'Only ' + s.count + ' of ' + day.slots + ' half-hours are published so far.' : '');
+    setStatus(ageHours > 36 ? 'These prices may be out of date: the last update was ' + Math.round(ageHours) + ' hours ago.' : '');
 
     var label = fmtDay.format(slotStart(day, 0));
     var area = regionName(state.region);
@@ -264,18 +263,134 @@
     renderPlunge(day, region.prices, s, area);
 
     $('best-time').textContent = s.cheapest2h ? range(day, s.cheapest2h.start, s.cheapest2h.end) : '–';
-    $('best-price').textContent = s.cheapest2h ? 'averages ' + pence(s.cheapest2h.avg) + ' per kWh. Run the washing machine, dishwasher or car charger now.' : '';
+    $('best-price').textContent = s.cheapest2h ? 'averages ' + pence(s.cheapest2h.avg) + ' per kWh. ' + windowAdvice(day, s.cheapest2h) : '';
     $('worst-time').textContent = s.priciest2h ? range(day, s.priciest2h.start, s.priciest2h.end) : '–';
     $('worst-price').textContent = s.priciest2h ? 'averages ' + pence(s.priciest2h.avg) + ' per kWh. Avoid big appliances if you can.' : '';
     $('avg').textContent = pence(s.avg);
     $('min').textContent = pence(s.min) + ' at ' + fmtTime.format(slotStart(day, s.minAt));
     $('max').textContent = pence(s.max) + ' at ' + fmtTime.format(slotStart(day, s.maxAt));
-    $('chart-caption').textContent = area + ', ' + label + ': price for each half-hour, pence per kWh including VAT';
+    $('chart-caption').textContent = area + ', ' + label + ': price for each half-hour, pence per kWh including any VAT due'
+      + (s.count < day.slots ? '. The last ' + (day.slots - s.count) + ' half-hours arrive with the next day\u2019s prices.' : '');
+    renderCap(s, area);
+    renderHero(day, s, area);
+    renderCalc(area);
 
     var tags = tagsFor(day, region.prices, s);
     drawChart(day, region.prices, tags);
     drawStrip(region.prices);
     fillTable(day, region.prices, tags);
+  }
+
+  // ---- Price cap, hero answer and savings calculator ----------------------
+
+  var CAP = CFG.priceCap || null;
+  function capActive() {
+    if (!CAP || typeof CAP.unitRate !== 'number') return false;
+    var d = fmtDate.format(new Date());
+    return d >= CAP.from && d <= CAP.to;
+  }
+
+  // Advice for the cheapest window that matches when it is.
+  function windowAdvice(day, w) {
+    var start = slotStart(day, w.start).getTime(), end = slotStart(day, w.end).getTime(), now = Date.now();
+    if (now >= end) return 'That window has passed; check tomorrow’s prices after 4pm.';
+    if (now >= start) return 'Run the washing machine, dishwasher or car charger now.';
+    return 'Plan the washing machine, dishwasher or car charger for then.';
+  }
+
+  function renderCap(s, area) {
+    var on = capActive();
+    $('cap-fact').hidden = !on; $('cap-legend').hidden = !on; $('cap-note').hidden = !on;
+    if (!on) return;
+    $('cap').textContent = pence(CAP.unitRate);
+    var diff = s.avg - CAP.unitRate;
+    var when = state.which === 'tomorrow' ? 'Tomorrow’s' : 'Today’s';
+    $('cap-note').textContent = when + ' Agile average in ' + area + ' is ' + pence(Math.abs(diff)) + (diff <= 0 ? ' below' : ' above')
+      + ' the price cap rate of ' + pence(CAP.unitRate) + ' (GB average, ' + CAP.label + '). '
+      + (s.cheapest2h ? 'The cheapest 2 hours are ' + Math.round((1 - s.cheapest2h.avg / CAP.unitRate) * 100) + '% below the cap.' : '');
+  }
+
+  function renderHero(day, s, area) {
+    var el = $('hero-answer');
+    if (!s.cheapest2h) { el.hidden = true; return; }
+    el.hidden = false;
+    el.textContent = '';
+    var lead = document.createElement('span'); lead.className = 'ha-k';
+    lead.textContent = (state.which === 'tomorrow' ? 'Tomorrow' : 'Today') + ' in ' + area + ', the cheapest 2 hours are';
+    var main = document.createElement('b');
+    main.textContent = range(day, s.cheapest2h.start, s.cheapest2h.end) + ' at ' + pence(s.cheapest2h.avg);
+    el.appendChild(lead); el.appendChild(main);
+    if (capActive()) {
+      var cap = document.createElement('span'); cap.className = 'ha-s';
+      cap.textContent = 'Price cap: ' + pence(CAP.unitRate);
+      el.appendChild(cap);
+    }
+  }
+
+  // A typical household's day (relative use per hour, UK time): low overnight,
+  // a morning bump and an evening peak. Used only for the estimate.
+  var PROFILE = [0.55,0.5,0.45,0.45,0.45,0.5,0.8,1.2,1.3,1.05,1,1,1.05,1,0.95,0.95,1.2,1.7,1.85,1.75,1.5,1.3,1.05,0.75];
+  var history = {};
+
+  function estimate(days, kwhYear, shift) {
+    var agile = 0, capCost = 0, kwhTotal = 0;
+    days.forEach(function (d) {
+      var p = d.p, n = p.length, perDay = kwhYear / 365;
+      var w = p.map(function (_, i) { return PROFILE[Math.min(23, Math.floor(i * 24 / n))]; });
+      var sum = w.reduce(function (a, b) { return a + b; }, 0);
+      var use = w.map(function (x) { return perDay * (1 - shift) * x / sum; });
+      // Move the flexible share into the day's 8 cheapest half-hours.
+      var order = p.map(function (v, i) { return i; }).sort(function (a, b) { return p[a] - p[b]; }).slice(0, 8);
+      order.forEach(function (i) { use[i] += perDay * shift / 8; });
+      use.forEach(function (k, i) { agile += k * p[i]; });
+      capCost += perDay * CAP.unitRate;
+      kwhTotal += perDay;
+    });
+    return { agile: agile, cap: capCost, rate: agile / kwhTotal, days: days.length };
+  }
+
+  function gbp(pence) { return '£' + Math.round(Math.abs(pence) / 100).toLocaleString('en-GB'); }
+
+  function renderCalc(area) {
+    var box = $('calc');
+    if (!capActive()) { box.hidden = true; return; }
+    all('.calc-area').forEach(function (e) { e.textContent = area; });
+    all('.calc-since').forEach(function (e) { e.textContent = fmtDay.format(new Date(CAP.from + 'T12:00:00Z')); });
+    var k = state.region;
+    function show() {
+      var h = history[k];
+      if (!h || !h.days.length) { box.hidden = true; return; }
+      box.hidden = false;
+      var kwh = Math.min(20000, Math.max(500, Math.round(Number($('calc-kwh').value) || 2700)));
+      if (String(kwh) !== $('calc-kwh').value) $('calc-kwh').value = kwh;
+      var shift = Number($('calc-shift').value) || 0;
+      var r = estimate(h.days, kwh, shift);
+      var perYear = (r.cap - r.agile) / r.days * 365;
+      var out = $('calc-out'); out.textContent = '';
+      var big = document.createElement('p'); big.className = 'calc-big ' + (perYear >= 0 ? 'save' : 'cost');
+      big.textContent = perYear >= 0 ? 'About ' + gbp(perYear) + ' a year cheaper on Agile' : 'About ' + gbp(perYear) + ' a year dearer on Agile';
+      var detail = document.createElement('p'); detail.className = 'calc-detail';
+      detail.textContent = 'Over the last ' + r.days + ' day' + (r.days === 1 ? '' : 's') + ' in ' + area + ', you would have paid an average of '
+        + pence(r.rate) + ' per kWh on Agile, against the price cap rate of ' + pence(CAP.unitRate) + '.'
+        + (r.days < 14 ? ' That’s only a short stretch so far, so treat it as a rough early guide.' : '');
+      out.appendChild(big); out.appendChild(detail);
+      $('calc-fine').textContent = 'Estimate only. It assumes a typical household’s daily pattern, moves the share you choose into each day’s cheapest four hours, and compares unit costs only: standing charges are left out. Winter prices are usually higher, and past prices don’t predict future ones. Price cap: Ofgem GB average for ' + CAP.label + '.';
+      box.dataset.result = perYear >= 0 ? 'save' : 'cost';
+    }
+    if (history[k]) { show(); return; }
+    fetch(BASE + 'data/history/' + k + '.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j) { history[k] = j; if (state.region === k) show(); } })
+      .catch(function () { box.hidden = true; });
+    if (!renderCalc.bound) {
+      renderCalc.bound = true;
+      var changed = function () {
+        renderCalc(regionName(state.region));
+        track('calc-estimate', { region: state.region, shift: $('calc-shift').value, result: $('calc').dataset.result || '' });
+      };
+      $('calc-kwh').addEventListener('change', changed);
+      $('calc-shift').addEventListener('change', changed);
+    }
   }
 
   // Money in pence -> "87p" or "£1.23".
@@ -398,7 +513,8 @@
     var H = W < 500 ? 220 : 260, L = 40, R = 8, T = 12, B = 26;
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     var known = prices.filter(function (p) { return p !== null; });
-    var lo = Math.min(0, Math.min.apply(null, known)), hi = Math.max(0, Math.max.apply(null, known));
+    var capOn = capActive();
+    var lo = Math.min(0, Math.min.apply(null, known)), hi = Math.max(0, Math.max.apply(null, known), capOn ? CAP.unitRate : 0);
     var step = niceStep(hi - lo || 10);
     lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
     if (hi === lo) hi = lo + step;
@@ -425,6 +541,11 @@
       var x = L + i * slotW + gap / 2, w = Math.max(1, slotW - gap);
       el('path', { d: roundedBar(x, w, y(0), y(p)), fill: colour[tags[i].kind] }, svg);
     });
+    if (capOn) {
+      el('line', { x1: L, x2: W - R, y1: y(CAP.unitRate), y2: y(CAP.unitRate), class: 'cap' }, svg);
+      var ct = el('text', { x: W - R - 2, y: y(CAP.unitRate) - 4, 'text-anchor': 'end', class: 'cap-label' }, svg);
+      ct.textContent = 'Cap ' + pence(CAP.unitRate);
+    }
     var nowI = tags.findIndex(function (t) { return t.now; });
     if (nowI >= 0) {
       var nx = L + (nowI + 0.5) * slotW;

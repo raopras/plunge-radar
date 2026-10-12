@@ -39,6 +39,10 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Fill gaps in price history (for the savings calculator)
+        continue-on-error: true
+        run: node scripts/backfill-history.mjs
+
       - name: Fetch prices
         run: node scripts/fetch-prices.mjs
 

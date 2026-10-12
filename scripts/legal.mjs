@@ -4,7 +4,7 @@
 // UK law doesn't let a website exclude everything, and pretending otherwise
 // makes the rest of the text easier to challenge.
 
-export const DISCLAIMER_UPDATED = '12 October 2026';
+export const DISCLAIMER_UPDATED = '13 October 2026';
 
 // Contact address, written as HTML character codes so simple spam bots don't pick it up.
 export const CONTACT_EMAIL = 'raoprasji@gmail.com';
@@ -20,8 +20,8 @@ export const DISCLAIMER_SECTIONS = [
     'Everything on this site is general information. It isn\'t financial, energy, legal or other professional advice, and it isn\'t a recommendation that any tariff or supplier is right for you.',
   ]],
   ['Check prices and data yourself', [
-    'Prices come from Octopus Energy\'s public data and are shown including 5% VAT, in UK time. They may be delayed, incomplete or wrong, and Octopus Energy may change them. Standing charges and your own usage aren\'t included, so the figures don\'t show what your bill will be.',
-    'The cheapest and dearest times, plunge alerts, regional rankings, history and example earnings (such as for an electric car charger) are worked out automatically and are illustrations only. The region checker uses your postcode or MPAN to find a likely region and can be wrong, especially near region boundaries.',
+    'Prices come from Octopus Energy\'s public data and are shown including any VAT due (there is no VAT on electricity from 1 October 2026 to 31 March 2027), in UK time. They may be delayed, incomplete or wrong, and Octopus Energy may change them. Standing charges and your own usage aren\'t included, so the figures don\'t show what your bill will be.',
+    'The cheapest and dearest times, plunge alerts, regional rankings, history, price cap comparisons, savings estimates and example earnings (such as for an electric car charger) are worked out automatically and are illustrations only. The savings calculator uses a typical household pattern and unit rates only; it leaves out standing charges and can\'t predict future prices. The price cap figure is Ofgem\'s GB average, and the cap in your region may differ slightly. The region checker uses your postcode or MPAN to find a likely region and can be wrong, especially near region boundaries.',
     'Before you act on anything here, check the prices for your own tariff and region in your Octopus Energy account or app.',
   ]],
   ['Decide whether Agile suits you', [
