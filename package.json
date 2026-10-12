@@ -1,0 +1,13 @@
+{
+  "name": "plunge-radar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daily Agile Octopus prices for every UK region, as a static site that updates itself.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "fetch": "node scripts/fetch-prices.mjs",
+    "test": "node --test",
+    "serve": "npx --yes serve@14.2.4 site"
+  }
+}

@@ -1,0 +1,74 @@
+name: Update Agile prices
+
+# Octopus publishes tomorrow's Agile prices at around 4pm UK time (sometimes later).
+# GitHub schedules run in UTC, so we check every hour from 15:07 to 22:07 UTC, which
+# covers 4pm onwards in both summer and winter. Once tomorrow is stored, later runs
+# exit in seconds without calling the API. The 00:07 run is a daily heartbeat.
+on:
+  schedule:
+    - cron: "7 15-22 * * *"
+    - cron: "7 0 * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths-ignore: ["site/data/**"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run tests
+        run: npm test
+
+      - name: Fetch prices
+        run: node scripts/fetch-prices.mjs
+
+      - name: Save new prices to the repo
+        id: commit
+        run: |
+          git config user.name "plunge-radar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No new prices."
+          else
+            git commit -m "Update Agile prices $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Publish only when something changed, or when run by hand or after a code change.
+      - name: Set up Pages
+        if: steps.commit.outputs.changed == 'true' || github.event_name != 'schedule'
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        if: steps.commit.outputs.changed == 'true' || github.event_name != 'schedule'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        if: steps.commit.outputs.changed == 'true' || github.event_name != 'schedule'
+        uses: actions/deploy-pages@v4

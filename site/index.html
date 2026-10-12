@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plunge Radar</title>
+<meta name="description" content="Today's and tomorrow's Agile Octopus half-hourly electricity prices for every UK region, with the cheapest times to use power and any negative-price plunges.">
+<meta property="og:title" content="Plunge Radar: the cheapest times to use electricity on Agile Octopus">
+<meta property="og:description" content="Half-hourly Agile prices for your area, today and tomorrow, updated every afternoon.">
+<meta name="theme-color" content="#0E1A2E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plunge Radar">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@500;700&family=Public+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brandline">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--cta)"/><path d="M5 12h4l3 10 4-16 4 13 2-5h5" fill="none" stroke="var(--cta-ink)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="wordmark">Plunge Radar</span>
+      <span class="live" id="live"><i></i><span id="live-text">Agile prices</span></span>
+    </div>
+    <h1>Find the cheapest time to use electricity, every day.</h1>
+    <p class="hero-lede">Half-hourly Agile Octopus prices for your area, today and tomorrow, in plain English. Updated every afternoon.</p>
+    <div class="hero-cta ref-only">
+      <a class="btn-cta ref-link" id="hero-cta" href="#" rel="sponsored noopener" target="_blank">Switch to Octopus Agile <span class="badge"><span class="reward">£50</span> credit</span></a>
+      <p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit. Agile needs a smart meter.</p>
+    </div>
+    <svg class="strip" id="strip" viewBox="0 0 480 44" preserveAspectRatio="none" aria-hidden="true"></svg>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card area" aria-labelledby="area-h">
+    <h2 id="area-h">Your area</h2>
+    <div class="area-grid">
+      <div class="field">
+        <label for="region">Electricity region</label>
+        <select id="region"></select>
+        <p class="hint" id="region-places"></p>
+      </div>
+      <form class="field" id="pc-form" novalidate>
+        <label for="pc">Which region am I in?</label>
+        <div class="pc-row">
+          <input id="pc" name="postcode" type="text" inputmode="text" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" placeholder="e.g. CR8 2AB" aria-describedby="pc-help pc-msg">
+          <button type="submit" id="pc-btn" class="btn-secondary">Check</button>
+        </div>
+        <p class="hint" id="pc-help">Enter your postcode, or the MPAN from your electricity bill.</p>
+        <div class="pc-msg" id="pc-msg" role="status" aria-live="polite" hidden></div>
+      </form>
+    </div>
+  </section>
+
+  <div class="dayrow">
+    <div class="days" role="group" aria-label="Choose day">
+      <button type="button" id="day-today" aria-pressed="true">Today</button>
+      <button type="button" id="day-tomorrow" aria-pressed="false">Tomorrow</button>
+    </div>
+    <span class="daylabel" id="daylabel"></span>
+  </div>
+
+  <div id="status" class="notice" hidden></div>
+
+  <section id="results" class="results" aria-live="polite">
+    <div id="plunge" class="plunge" hidden>
+      <strong>Plunge alert</strong>
+      <span id="plunge-text"></span>
+      <a class="plunge-link ref-link ref-only" href="#" rel="sponsored noopener" target="_blank">Get paid like this on Agile: switch and get <span class="reward">£50</span> →</a>
+    </div>
+    <div class="verdict">
+      <div class="window best"><span class="k">Cheapest 2 hours</span><span class="v" id="best-time">–</span><span class="s" id="best-price"></span></div>
+      <div class="window worst"><span class="k">Dearest 2 hours</span><span class="v" id="worst-time">–</span><span class="s" id="worst-price"></span></div>
+    </div>
+    <p class="facts">
+      <span>Day average <b id="avg">–</b></span>
+      <span>Lowest <b id="min">–</b></span>
+      <span>Highest <b id="max">–</b></span>
+    </p>
+  </section>
+
+  <aside class="promo ref-only" aria-label="Switch to Agile">
+    <div>
+      <p class="promo-h">These prices are only on Agile Octopus.</p>
+      <p class="promo-s">Join Octopus with our link, pick Agile, and start with <span class="reward">£50</span> credit.</p>
+    </div>
+    <a class="btn-cta ref-link" href="#" rel="sponsored noopener" target="_blank">Switch to Agile</a>
+  </aside>
+
+  <figure class="card chart">
+    <figcaption id="chart-caption">Price for each half-hour, pence per kWh including VAT</figcaption>
+    <div class="chart-scroll"><svg class="bars" id="chart" viewBox="0 0 720 260" role="img" aria-label="Bar chart of half-hourly prices"></svg></div>
+    <div class="tip" id="tip" hidden></div>
+    <div class="legend">
+      <span><i style="background:var(--plunge)"></i>Below zero (you're paid)</span>
+      <span><i style="background:var(--cheap)"></i>Cheapest 2 hours</span>
+      <span><i style="background:var(--peak)"></i>Dearest 2 hours</span>
+      <span><i style="background:var(--bar)"></i>Other half-hours</span>
+    </div>
+  </figure>
+
+  <details class="card table">
+    <summary>All half-hourly prices as a table</summary>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Time</th><th class="p">Price</th><th>Note</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </details>
+
+  <section class="switch ref-only" id="switch" aria-labelledby="switch-h">
+    <h2 id="switch-h">Switch to Agile in three steps</h2>
+    <ol class="steps">
+      <li><div><b>Join Octopus with our link.</b> You get <span class="reward">£50</span> credit once your switch completes and your first Direct Debit is taken.</div></li>
+      <li><div><b>Choose Agile Octopus.</b> It needs a smart meter that sends half-hourly readings.</div></li>
+      <li><div><b>Check Plunge Radar each afternoon.</b> Move washing, dishwashers and car charging into the cheap half-hours.</div></li>
+    </ol>
+    <a class="btn-cta big ref-link" id="switch-cta" href="#" rel="sponsored noopener" target="_blank">Switch to Octopus Agile now <span class="badge"><span class="reward">£50</span> credit</span></a>
+    <p class="fine-dark">This is a referral link: we also get <span class="reward">£50</span>, which keeps this site free. Plunge Radar is independent and not affiliated with Octopus Energy.</p>
+  </section>
+
+  <section class="about">
+    <h2>How Agile works</h2>
+    <p>Agile Octopus charges a different price for every half-hour, linked to the wholesale market. Octopus publishes tomorrow's prices at around 4pm each day.</p>
+    <p>Prices are usually lowest overnight and in windy or sunny spells, and highest from 4pm to 7pm. When there's more power than the grid needs, prices can drop below zero and customers are paid to use it. At peak times Agile can cost more than the price cap rate, so it suits homes that can move their usage.</p>
+  </section>
+
+  <footer class="small">
+    <p>Plunge Radar is independent and not affiliated with Octopus Energy. Links marked as referral links earn us account credit if you switch through them.</p>
+    <p>Prices come from the public Octopus Energy API and include 5% VAT. Times are UK time. <span id="updated"></span></p>
+    <p>Published prices are a guide, not a promise of savings. Check the price on your own account before you plan around it.</p>
+  </footer>
+</main>
+
+<div class="stickybar ref-only" id="stickybar" hidden>
+  <span class="sb-text"><b><span class="reward">£50</span> credit</b> when you switch to Octopus</span>
+  <a class="btn-cta small ref-link" href="#" rel="sponsored noopener" target="_blank">Switch now</a>
+  <button type="button" class="sb-close" id="sb-close" aria-label="Hide this bar">×</button>
+</div>
+
+<script src="config.js"></script>
+<script src="regions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
