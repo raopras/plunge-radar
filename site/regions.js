@@ -5,21 +5,37 @@
 
   // The 14 electricity regions (distribution areas) Octopus prices by.
   // mpan = the first two digits of the MPAN on an electricity bill, which pins the region exactly.
+  // slug = the region's page address (plungeradar.co.uk/<slug>/); inName = how it reads in a sentence;
+  // operator = the network company that runs the local wires.
   var REGIONS = {
-    A: { name: 'Eastern England', places: 'Norfolk, Suffolk, Essex, Cambridgeshire, Hertfordshire', mpan: '10' },
-    B: { name: 'East Midlands', places: 'Nottingham, Leicester, Derby, Northampton, Lincoln', mpan: '11' },
-    C: { name: 'London', places: 'Greater London', mpan: '12' },
-    D: { name: 'North Wales and Merseyside', places: 'Liverpool, Chester, Wirral, North Wales', mpan: '13' },
-    E: { name: 'West Midlands', places: 'Birmingham, Coventry, Wolverhampton, Worcester, Hereford', mpan: '14' },
-    F: { name: 'North East', places: 'Newcastle, Sunderland, Durham, Teesside', mpan: '15' },
-    G: { name: 'North West', places: 'Manchester, Lancashire, Cumbria', mpan: '16' },
-    H: { name: 'Southern', places: 'Hampshire, Oxfordshire, Berkshire, Wiltshire', mpan: '20' },
-    J: { name: 'South East', places: 'Kent, Sussex, much of Surrey', mpan: '19' },
-    K: { name: 'South Wales', places: 'Cardiff, Swansea, Newport', mpan: '21' },
-    L: { name: 'South West', places: 'Bristol, Somerset, Devon, Cornwall', mpan: '22' },
-    M: { name: 'Yorkshire', places: 'Leeds, Sheffield, York, Hull', mpan: '23' },
-    N: { name: 'South Scotland', places: 'Glasgow, Edinburgh, the Borders', mpan: '18' },
-    P: { name: 'North Scotland', places: 'Aberdeen, Dundee, Highlands and Islands', mpan: '17' },
+    A: { name: 'Eastern England', places: 'Norfolk, Suffolk, Essex, Cambridgeshire, Hertfordshire', mpan: '10',
+         slug: 'eastern-england', inName: 'Eastern England', operator: 'UK Power Networks' },
+    B: { name: 'East Midlands', places: 'Nottingham, Leicester, Derby, Northampton, Lincoln', mpan: '11',
+         slug: 'east-midlands', inName: 'the East Midlands', operator: 'National Grid Electricity Distribution' },
+    C: { name: 'London', places: 'Greater London', mpan: '12',
+         slug: 'london', inName: 'London', operator: 'UK Power Networks' },
+    D: { name: 'North Wales and Merseyside', places: 'Liverpool, Chester, Wirral, North Wales', mpan: '13',
+         slug: 'north-wales-and-merseyside', inName: 'North Wales and Merseyside', operator: 'SP Energy Networks' },
+    E: { name: 'West Midlands', places: 'Birmingham, Coventry, Wolverhampton, Worcester, Hereford', mpan: '14',
+         slug: 'west-midlands', inName: 'the West Midlands', operator: 'National Grid Electricity Distribution' },
+    F: { name: 'North East', places: 'Newcastle, Sunderland, Durham, Teesside', mpan: '15',
+         slug: 'north-east-england', inName: 'North East England', operator: 'Northern Powergrid' },
+    G: { name: 'North West', places: 'Manchester, Lancashire, Cumbria', mpan: '16',
+         slug: 'north-west-england', inName: 'North West England', operator: 'Electricity North West' },
+    H: { name: 'Southern', places: 'Hampshire, Oxfordshire, Berkshire, Wiltshire', mpan: '20',
+         slug: 'southern-england', inName: 'Southern England', operator: 'Scottish and Southern Electricity Networks' },
+    J: { name: 'South East', places: 'Kent, Sussex, much of Surrey', mpan: '19',
+         slug: 'south-east-england', inName: 'South East England', operator: 'UK Power Networks' },
+    K: { name: 'South Wales', places: 'Cardiff, Swansea, Newport', mpan: '21',
+         slug: 'south-wales', inName: 'South Wales', operator: 'National Grid Electricity Distribution' },
+    L: { name: 'South West', places: 'Bristol, Somerset, Devon, Cornwall', mpan: '22',
+         slug: 'south-west-england', inName: 'South West England', operator: 'National Grid Electricity Distribution' },
+    M: { name: 'Yorkshire', places: 'Leeds, Sheffield, York, Hull', mpan: '23',
+         slug: 'yorkshire', inName: 'Yorkshire', operator: 'Northern Powergrid' },
+    N: { name: 'South Scotland', places: 'Glasgow, Edinburgh, the Borders', mpan: '18',
+         slug: 'south-scotland', inName: 'South Scotland', operator: 'SP Energy Networks' },
+    P: { name: 'North Scotland', places: 'Aberdeen, Dundee, Highlands and Islands', mpan: '17',
+         slug: 'north-scotland', inName: 'North Scotland', operator: 'Scottish and Southern Electricity Networks' },
   };
 
   // Postcode area -> likely regions, most likely first. Areas that straddle a

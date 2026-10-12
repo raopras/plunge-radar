@@ -10,7 +10,8 @@
   "scripts": {
     "fetch": "node scripts/fetch-prices.mjs",
     "test": "node --test",
-    "serve": "npx --yes serve@14.2.4 site"
+    "serve": "npx --yes serve@14.2.4 _site",
+    "build": "node scripts/build-site.mjs"
   },
   "license": "UNLICENSED",
   "author": "Pras Rao"

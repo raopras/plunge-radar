@@ -14,7 +14,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  REGIONS, addDays, apiTime, dayIsComplete, expectedSlots, londonDateString,
+  REGIONS, addDays, apiTime, dayIsComplete, dayIsPublished, expectedSlots, londonDateString,
   londonMidnightUTC, pickAgileProduct, regionTariffCodes, slotPrices, summariseDay,
 } from './lib.mjs';
 
@@ -80,7 +80,8 @@ export async function run({
   const yesterday = addDays(today, -1);
 
   // Cache check: nothing to do if both days are already complete.
-  if (!force && dayIsComplete(cached, today) && dayIsComplete(cached, tomorrow)) {
+  // Today must be complete; tomorrow only needs everything up to its final hour (see dayIsPublished).
+  if (!force && dayIsComplete(cached, today) && dayIsPublished(cached, tomorrow)) {
     log(`Up to date: prices for ${today} and ${tomorrow} already stored. No API calls made.`);
     return { changed: false, reason: 'cached' };
   }

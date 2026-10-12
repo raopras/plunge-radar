@@ -2,6 +2,9 @@
   'use strict';
 
   var CFG = window.PLUNGE_CONFIG || {};
+  // Region landing pages set PLUNGE_PAGE = { region, base: '../' }; the home page doesn't.
+  var PAGE = window.PLUNGE_PAGE || {};
+  var BASE = PAGE.base || '';
   var PR = window.PlungeRegions || { REGIONS: {}, lookup: null };
   var SLOT = 30 * 60 * 1000;
   var $ = function (id) { return document.getElementById(id); };
@@ -80,9 +83,27 @@
     state.region = k;
     $('region').value = k;
     var info = PR.REGIONS[k];
-    $('region-places').textContent = info && info.places ? 'Covers ' + info.places + '.' : '';
+    var hint = $('region-places');
+    hint.textContent = info && info.places ? 'Covers ' + info.places + '. ' : '';
+    if (!PAGE.region && info && info.slug) {
+      var a = document.createElement('a');
+      a.href = BASE + info.slug + '/';
+      a.textContent = 'See the ' + info.name + ' page →';
+      hint.appendChild(a);
+    }
     if (remember) store('plunge-region', k);
     render();
+  }
+
+  // On a region page, choosing a different region opens that region's page.
+  function goRegion(k) {
+    var info = PR.REGIONS[k];
+    if (PAGE.region && k !== PAGE.region && info && info.slug) {
+      location.href = BASE + info.slug + '/';
+      return true;
+    }
+    setRegion(k, true);
+    return false;
   }
 
   function pcMessage(kind, nodes) {
@@ -117,12 +138,12 @@
         if (r.status === 'exact') {
           var where = r.source === 'mpan' ? 'Your MPAN shows you’re in ' : r.display + ' is in ';
           pcMessage('ok', [para([where, { b: regionName(r.region) }, ' (region ' + r.region + '). Showing its prices below.'])]);
-          setRegion(r.region, true);
+          goRegion(r.region);
           return;
         }
         if (r.status === 'likely') {
           pcMessage('ok', [para([r.display + ' is in ', { b: regionName(r.region) }, ' (region ' + r.region + '), based on the postcode area. Showing its prices below.'])]);
-          setRegion(r.region, true);
+          goRegion(r.region);
           return;
         }
         // On a boundary: let them pick, and say how to get an exact answer.
@@ -134,7 +155,7 @@
           b.type = 'button';
           b.textContent = regionName(k);
           b.addEventListener('click', function () {
-            setRegion(k, true);
+            if (goRegion(k)) return;
             pcMessage('ok', [para(['Showing prices for ', { b: regionName(k) }, ' (region ' + k + ').'])]);
           });
           choices.appendChild(b);
@@ -147,7 +168,7 @@
             + (isFull ? 'enter the MPAN from your electricity bill' : 'enter your full postcode or the MPAN from your bill') + ' for an exact answer.']),
           choices,
         ]);
-        setRegion(r.candidates[0], false);
+        if (!PAGE.region) setRegion(r.candidates[0], false);
       });
     });
   }
@@ -165,7 +186,7 @@
       o.value = k; o.textContent = regionName(k);
       sel.appendChild(o);
     });
-    sel.addEventListener('change', function () { $('pc-msg').hidden = true; setRegion(sel.value, true); });
+    sel.addEventListener('change', function () { $('pc-msg').hidden = true; goRegion(sel.value); });
 
     var hasTomorrow = !!data.days[dates.tomorrow];
     $('day-tomorrow').disabled = !hasTomorrow;
@@ -180,7 +201,8 @@
     $('live-text').textContent = hasTomorrow ? 'Tomorrow’s prices are in' : 'Updated ' + fmtStamp.format(new Date(data.generatedAt));
 
     var saved = store('plunge-region');
-    setRegion(data.regions[saved] ? saved : (data.regions[CFG.defaultRegion] ? CFG.defaultRegion : 'C'), false);
+    if (PAGE.region && data.regions[PAGE.region]) setRegion(PAGE.region, true);
+    else setRegion(data.regions[saved] ? saved : (data.regions[CFG.defaultRegion] ? CFG.defaultRegion : 'C'), false);
   }
 
   // ---- Render -------------------------------------------------------------
@@ -433,11 +455,11 @@
 
   // Installable web app: cache the page so it opens offline with the last prices.
   if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.PLUNGE_SAMPLE) {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* optional */ });
+    navigator.serviceWorker.register(BASE + 'sw.js').catch(function () { /* optional */ });
   }
 
   if (window.PLUNGE_SAMPLE) { init(window.PLUNGE_SAMPLE); return; }
-  fetch('data/latest.json', { cache: 'no-cache' })
+  fetch(BASE + 'data/latest.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(init)
     .catch(function () {

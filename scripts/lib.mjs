@@ -176,3 +176,20 @@ export function dayIsComplete(dataset, dateStr) {
     return Array.isArray(prices) && prices.length === n && prices.every((p) => p !== null);
   });
 }
+
+/**
+ * True when every region has all the prices Octopus will publish for the date so far.
+ * Agile prices run 11pm to 11pm, so a day's final hour (two half-hours) only arrives
+ * with the next day's prices; those two may still be missing.
+ */
+export function dayIsPublished(dataset, dateStr) {
+  const day = dataset?.days?.[dateStr];
+  if (!day) return false;
+  const n = expectedSlots(dateStr);
+  return Object.keys(REGIONS).every((r) => {
+    const prices = day.regions?.[r]?.prices;
+    if (!Array.isArray(prices) || prices.length !== n) return false;
+    const firstGap = prices.indexOf(null);
+    return firstGap === -1 || (firstGap >= n - 2 && prices.slice(firstGap).every((p) => p === null));
+  });
+}

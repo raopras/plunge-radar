@@ -26,6 +26,19 @@ Visitors can type a postcode (or the MPAN from their electricity bill) instead o
 
 The site has a web app manifest, icons and a small service worker (`site/sw.js`). On a phone, visitors can choose **Add to Home Screen** and it opens full screen like an app. It always fetches fresh prices when online and shows the last saved prices when offline. If you ever change the files a lot, bump `CACHE` in `site/sw.js` (for example to `plunge-radar-v2`).
 
+### Region landing pages
+
+`scripts/build-site.mjs` runs after each price update. It copies `site/` into `_site/` (the folder that gets published) and writes a page for each of the 14 regions, such as `/london/` and `/south-east-england/`. Each page has:
+
+- its own title, description and headline ("Agile Octopus prices today in London"), with that day's cheapest window in the search snippet
+- today's cheapest and dearest times written into the HTML, so search engines and link previews see real numbers
+- local facts: places covered, postcode areas, MPAN prefix, network operator, and how the region ranks today
+- recent days from the archive, which grows by one day every day
+- a short FAQ, plus breadcrumb, page and FAQ structured data
+- a "today across Great Britain" table linking all 14 regions (also on the home page)
+
+It also writes `sitemap.xml` with every page. Region names, addresses and operators live in `site/regions.js`.
+
 ## Set up (about 10 minutes, once)
 
 You need a free GitHub account.
@@ -73,7 +86,8 @@ Needs Node.js 20 or newer.
 ```bash
 npm test            # unit tests + an end-to-end run against a mock API
 npm run fetch       # fetch live prices into site/data/
-npm run serve       # preview at http://localhost:3000
+npm run build       # build the site and region pages into _site/
+npm run serve       # preview _site at http://localhost:3000
 ```
 
 Useful settings for `npm run fetch`: `FORCE=1` refetches even when cached; `PLUNGE_NOW=2026-10-24T17:00:00Z` pretends it's a different time.

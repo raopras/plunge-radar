@@ -42,6 +42,9 @@ jobs:
       - name: Fetch prices
         run: node scripts/fetch-prices.mjs
 
+      - name: Build site and region pages
+        run: node scripts/build-site.mjs
+
       - name: Save new prices to the repo
         id: commit
         run: |
@@ -66,7 +69,7 @@ jobs:
         if: steps.commit.outputs.changed == 'true' || github.event_name != 'schedule'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: _site
 
       - name: Deploy
         id: deploy
