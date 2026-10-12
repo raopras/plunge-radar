@@ -11,7 +11,8 @@
     "fetch": "node scripts/fetch-prices.mjs",
     "test": "node --test",
     "serve": "npx --yes serve@14.2.4 _site",
-    "build": "node scripts/build-site.mjs"
+    "build": "node scripts/build-site.mjs",
+    "audit": "node scripts/seo-audit.mjs"
   },
   "license": "UNLICENSED",
   "author": "Pras Rao"

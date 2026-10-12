@@ -45,6 +45,9 @@ jobs:
       - name: Build site and region pages
         run: node scripts/build-site.mjs
 
+      - name: SEO audit (stops the deploy if any page fails)
+        run: node scripts/seo-audit.mjs
+
       - name: Save new prices to the repo
         id: commit
         run: |

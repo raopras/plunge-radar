@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { REGIONS, dayIsPublished, expectedSlots } from '../scripts/lib.mjs';
 import { run } from '../scripts/fetch-prices.mjs';
 import { build } from '../scripts/build-site.mjs';
+import { audit } from '../scripts/seo-audit.mjs';
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
 
@@ -68,7 +69,7 @@ test('build writes a landing page per region with real numbers, links and struct
   const london = await readFile(join(outDir, 'london', 'index.html'), 'utf8');
   assert.match(london, /<title>Agile Octopus Prices Today: London \| Plunge Radar<\/title>/);
   assert.match(london, /<link rel="canonical" href="https:\/\/plungeradar.co.uk\/london\/">/);
-  assert.match(london, /<h1>Agile Octopus prices today in London<\/h1>/);
+  assert.match(london, /<h1>Agile Octopus tariff prices today in London<\/h1>/);
   assert.match(london, /id="best-time">\d\d:\d\d–\d\d:\d\d</, 'cheapest window is written into the HTML');
   assert.match(london, /<meta name="description" content="\d\d:\d\d–\d\d:\d\d is the cheapest time for electricity in London on /);
   assert.match(london, /id="results-h">Cheapest times to use electricity in London today</);
@@ -87,7 +88,7 @@ test('build writes a landing page per region with real numbers, links and struct
 
   for (const r of Object.values(globalThis.PlungeRegions.REGIONS)) {
     const html = await readFile(join(outDir, r.slug, 'index.html'), 'utf8');
-    assert.ok(html.includes(`<h1>Agile Octopus prices today in ${r.inName.replace("'", '&#39;')}</h1>`), r.slug);
+    assert.ok(html.includes(`<h1>Agile Octopus tariff prices today in ${r.inName.replace("'", '&#39;')}</h1>`), r.slug);
   }
 
   // Every title and description fits in a search result.
@@ -99,6 +100,8 @@ test('build writes a landing page per region with real numbers, links and struct
     assert.ok(d.length <= 155, `${f} description ${d.length}`);
   }
   assert.ok((await readFile(join(outDir, '404.html'), 'utf8')).includes('noindex'));
+
+  assert.deepEqual(audit(outDir).issues, [], 'publish-time SEO audit');
 
   const home = await readFile(join(outDir, 'index.html'), 'utf8');
   assert.ok(home.includes('href="london/"') && !home.includes('PLUNGE_PAGE'));

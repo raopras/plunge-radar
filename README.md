@@ -56,6 +56,10 @@ Events recorded:
 
 Completed switches still show only in your Octopus account (referral credits), so compare those with the clicks to see the conversion rate.
 
+### SEO audit on every publish
+
+`scripts/seo-audit.mjs` checks every built page before it goes live: title (60 characters max) and description (70–155) lengths, one H1, no duplicate titles or headings, canonical URL, social tags, valid structured data, no dead links, image alt text, the tariff explained in the opening section, the consistent name "Agile Octopus", sitemap coverage, robots.txt and the 404 page. If anything fails, the GitHub Action stops before deploying. Run it locally with `npm run build && npm run audit`.
+
 ## Set up (about 10 minutes, once)
 
 You need a free GitHub account.

@@ -266,9 +266,9 @@ export async function build({
     const description = descOptions.find((d) => d.length <= 155) || descOptions[descOptions.length - 1];
     html = setMeta(html, { title, description, url });
 
-    html = html.replace(/(<h1>)[^<]*(<\/h1>)/, `$1Agile Octopus prices today in ${esc(r.inName)}$2`);
+    html = html.replace(/(<h1>)[^<]*(<\/h1>)/, `$1Agile Octopus tariff prices today in ${esc(r.inName)}$2`);
     html = html.replace(/(<p class="hero-lede">)[^<]*(<\/p>)/,
-      `$1Half-hourly electricity prices for ${esc(r.inName)} (region ${k}), today and tomorrow, with the cheapest and dearest times in plain English. Updated every afternoon.$2`);
+      `$1Agile Octopus is a smart electricity tariff from Octopus Energy where the price changes every half-hour. Here are today's and tomorrow's prices for ${esc(r.inName)} (region ${k}), with the cheapest times to use power.$2`);
 
     let extra = { local: '', faq: '', faqs: [] };
     if (day) {
