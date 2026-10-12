@@ -230,6 +230,7 @@
     var label = fmtDay.format(slotStart(day, 0));
     var area = regionName(state.region);
     $('daylabel').textContent = area + ' · ' + fmtShortDay.format(slotStart(day, 0));
+    $('results-h').textContent = 'Cheapest times to use electricity in ' + area + ' ' + (state.which === 'tomorrow' ? 'tomorrow' : 'today');
 
     renderPlunge(day, region.prices, s, area);
 

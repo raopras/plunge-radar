@@ -66,11 +66,13 @@ test('build writes a landing page per region with real numbers, links and struct
   assert.ok(sitemap.includes('<loc>https://plungeradar.co.uk/south-east-england/</loc>'));
 
   const london = await readFile(join(outDir, 'london', 'index.html'), 'utf8');
-  assert.match(london, /<title>Agile Octopus Prices Today in London \| Plunge Radar<\/title>/);
+  assert.match(london, /<title>Agile Octopus Prices Today: London \| Plunge Radar<\/title>/);
   assert.match(london, /<link rel="canonical" href="https:\/\/plungeradar.co.uk\/london\/">/);
   assert.match(london, /<h1>Agile Octopus prices today in London<\/h1>/);
   assert.match(london, /id="best-time">\d\d:\d\d–\d\d:\d\d</, 'cheapest window is written into the HTML');
-  assert.match(london, /<meta name="description" content="Cheapest time for electricity in London on [^"]+\d\d:\d\d–\d\d:\d\d at /);
+  assert.match(london, /<meta name="description" content="\d\d:\d\d–\d\d:\d\d is the cheapest time for electricity in London on /);
+  assert.match(london, /id="results-h">Cheapest times to use electricity in London today</);
+  assert.ok(!london.includes('id="ld-home"'), 'home structured data removed from region pages');
   assert.ok(london.includes('window.PLUNGE_PAGE = { region: "C", base: "../" }'));
   assert.ok(london.includes('href="../styles.css"') && london.includes('src="../app.js"'));
   assert.ok(london.includes('href="../south-east-england/"'), 'links to other regions');
@@ -87,6 +89,16 @@ test('build writes a landing page per region with real numbers, links and struct
     const html = await readFile(join(outDir, r.slug, 'index.html'), 'utf8');
     assert.ok(html.includes(`<h1>Agile Octopus prices today in ${r.inName.replace("'", '&#39;')}</h1>`), r.slug);
   }
+
+  // Every title and description fits in a search result.
+  for (const f of ['index.html', ...Object.values(globalThis.PlungeRegions.REGIONS).map((r) => `${r.slug}/index.html`)]) {
+    const h = await readFile(join(outDir, f), 'utf8');
+    const t = h.match(/<title>([^<]*)/)[1].replace(/&amp;/g, '&');
+    const d = h.match(/name="description" content="([^"]*)/)[1].replace(/&amp;|&#39;/g, 'x');
+    assert.ok(t.length <= 60, `${f} title ${t.length}: ${t}`);
+    assert.ok(d.length <= 155, `${f} description ${d.length}`);
+  }
+  assert.ok((await readFile(join(outDir, '404.html'), 'utf8')).includes('noindex'));
 
   const home = await readFile(join(outDir, 'index.html'), 'utf8');
   assert.ok(home.includes('href="london/"') && !home.includes('PLUNGE_PAGE'));

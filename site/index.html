@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Agile Octopus Prices Today and Tomorrow, by Region | Plunge Radar</title>
-<meta name="description" content="Today's and tomorrow's Agile Octopus half-hourly electricity prices for every UK region, with the cheapest times to use power and any negative-price plunges.">
+<title>Agile Octopus Prices Today &amp; Tomorrow | Plunge Radar</title>
+<meta name="description" content="Agile Octopus prices for today and tomorrow in every UK region: the cheapest times to use electricity, half-hourly rates and negative-price alerts.">
 <meta property="og:title" content="Plunge Radar: the cheapest times to use electricity on Agile Octopus">
 <meta property="og:description" content="Half-hourly Agile prices for your area, today and tomorrow, updated every afternoon.">
 <link rel="canonical" href="https://plungeradar.co.uk/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
 <meta property="og:url" content="https://plungeradar.co.uk/">
 <meta property="og:site_name" content="Plunge Radar">
 <meta property="og:image" content="https://plungeradar.co.uk/og-image.png">
@@ -29,6 +30,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@500;700&family=Public+Sans:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json" id="ld-home">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Plunge Radar","url":"https://plungeradar.co.uk/","inLanguage":"en-GB","description":"Agile Octopus half-hourly electricity prices for every UK region, today and tomorrow."},{"@type":"WebPage","name":"Agile Octopus Prices Today & Tomorrow","url":"https://plungeradar.co.uk/","inLanguage":"en-GB","isPartOf":{"@type":"WebSite","url":"https://plungeradar.co.uk/"}}]}</script>
 </head>
 <body>
 <header class="hero">
@@ -50,7 +52,7 @@
 
 <main class="wrap">
   <section class="card area" aria-labelledby="area-h">
-    <h2 id="area-h">Your area</h2>
+    <h2 id="area-h">Find your Agile region</h2>
     <div class="area-grid">
       <div class="field">
         <label for="region">Electricity region</label>
@@ -79,7 +81,8 @@
 
   <div id="status" class="notice" hidden></div>
 
-  <section id="results" class="results" aria-live="polite">
+  <section id="results" class="results" aria-live="polite" aria-labelledby="results-h">
+    <h2 class="results-h" id="results-h">Cheapest times to use electricity today</h2>
     <div id="plunge" class="plunge" hidden>
       <div class="plunge-head"><strong>Plunge alert</strong><span class="plunge-when" id="plunge-when"></span></div>
       <p class="plunge-h" id="plunge-h"></p>
@@ -134,7 +137,7 @@
   </details>
 
   <section class="switch ref-only" id="switch" aria-labelledby="switch-h">
-    <h2 id="switch-h">Switch to Agile in three steps</h2>
+    <h2 id="switch-h">How to switch to Agile Octopus</h2>
     <ol class="steps">
       <li><div><b>Join Octopus with our link.</b> You get <span class="reward">£50</span> credit once your switch completes and your first Direct Debit is taken.</div></li>
       <li><div><b>Choose Agile Octopus.</b> It needs a smart meter that sends half-hourly readings.</div></li>
@@ -147,7 +150,7 @@
   <!--build:compare-->
 
   <section class="about">
-    <h2>How Agile works</h2>
+    <h2>How Agile Octopus pricing works</h2>
     <p>Agile Octopus charges a different price for every half-hour, linked to the wholesale market. Octopus publishes tomorrow's prices at around 4pm each day.</p>
     <p>Prices are usually lowest overnight and in windy or sunny spells, and highest from 4pm to 7pm. When there's more power than the grid needs, prices can drop below zero and customers are paid to use it. At peak times Agile can cost more than the price cap rate, so it suits homes that can move their usage.</p>
   </section>

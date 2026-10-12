@@ -11,7 +11,7 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { londonDateString } from './lib.mjs';
+import { addDays, londonDateString } from './lib.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -111,8 +111,14 @@ function regionSections(dataset, dayKey, PR, k, history) {
   const negTotal = histRows.reduce((a, h) => a + h.st.negatives, 0);
   const since = histRows.length ? fmtLong.format(new Date(Date.parse(histRows[histRows.length - 1].start))) : null;
 
+  const tKey = addDays(dayKey, 1);
+  const tDay = dataset.days[tKey];
+  const tS = tDay?.regions[k]?.summary;
+  const tomorrowLine = tS?.cheapest2h
+    ? ` Tomorrow (${esc(fmtShort.format(slotStart(tDay, 0)))}), the cheapest 2 hours are <b>${range(tDay, tS.cheapest2h.start, tS.cheapest2h.end)}</b> at ${pence(tS.cheapest2h.avg)} per kWh${tS.negatives.length ? ', with prices going below zero' : ''}.`
+    : '';
   const rankLine = s
-    ? `On ${esc(fmtLong.format(slotStart(day, 0)))}, ${esc(r.inName)} ranks <b>${ordinal(rank)} cheapest of ${ranked.length}</b> regions, averaging ${pence(s.avg)} per kWh against a Great Britain average of ${pence(gbAvg)}.`
+    ? `On ${esc(fmtLong.format(slotStart(day, 0)))}, ${esc(r.inName)} ranks <b>${ordinal(rank)} cheapest of ${ranked.length}</b> regions, averaging ${pence(s.avg)} per kWh against a Great Britain average of ${pence(gbAvg)}.${tomorrowLine}`
     : '';
 
   const histTable = recent.length ? `
@@ -184,6 +190,10 @@ function prerender(html, day, s, label) {
   return html;
 }
 
+function setResultsHeading(html, inName) {
+  return html.replace(/(id="results-h">)[^<]*(<)/, `$1Cheapest times to use electricity in ${esc(inName)} today$2`);
+}
+
 function setMeta(html, { title, description, url }) {
   const rep = (re, val) => { html = html.replace(re, (m, a, b) => a + esc(val) + b); };
   rep(/(<title>)[^<]*(<\/title>)/, title);
@@ -227,6 +237,7 @@ export async function build({
     home = home.replace('<!--build:compare-->', compareSection(dataset, dayKey, PR, '', null));
     const cS = day.regions[PR.REGIONS.C ? 'C' : Object.keys(day.regions)[0]]?.summary;
     home = prerender(home, day, cS, `${PR.REGIONS.C.name} · ${fmtShort.format(slotStart(day, 0))}`);
+    home = setResultsHeading(home, PR.REGIONS.C.inName);
   }
   await writeFile(join(outDir, 'index.html'), home);
 
@@ -241,10 +252,18 @@ export async function build({
     // Assets sit one folder up.
     html = html.replace(/(href|src)="(styles\.css|manifest\.webmanifest|config\.js|regions\.js|app\.js|icons\/[^"]+)"/g, '$1="../$2"');
 
-    const title = `Agile Octopus Prices Today in ${sentenceCase(r.inName)} | Plunge Radar`;
-    const description = win
-      ? `Cheapest time for electricity in ${r.inName} on ${dateLabel}: ${win} at ${pence(s.cheapest2h.avg)}/kWh. Half-hourly Agile Octopus prices for today and tomorrow, updated every afternoon.`
-      : `Today's and tomorrow's half-hourly Agile Octopus prices for ${r.inName}, with the cheapest times to use electricity. Updated every afternoon.`;
+    // Google shows about 60 characters of a title and 155 of a description.
+    const place = r.inName.replace(/^the /, '');
+    const titleBase = `Agile Octopus Prices Today: ${place}`;
+    const title = `${titleBase} | Plunge Radar`.length <= 60 ? `${titleBase} | Plunge Radar` : titleBase;
+    const descOptions = win
+      ? [
+          `${win} is the cheapest time for electricity in ${r.inName} on ${dateLabel} (${pence(s.cheapest2h.avg)}/kWh). Half-hourly Agile Octopus prices for today and tomorrow.`,
+          `${win} is the cheapest time in ${r.inName} on ${dateLabel} (${pence(s.cheapest2h.avg)}/kWh). Agile Octopus prices for today and tomorrow.`,
+          `${win} is the cheapest time in ${r.inName} on ${dateLabel} (${pence(s.cheapest2h.avg)}/kWh).`,
+        ]
+      : [`Today's and tomorrow's half-hourly Agile Octopus prices for ${r.inName}, with the cheapest times to use electricity.`];
+    const description = descOptions.find((d) => d.length <= 155) || descOptions[descOptions.length - 1];
     html = setMeta(html, { title, description, url });
 
     html = html.replace(/(<h1>)[^<]*(<\/h1>)/, `$1Agile Octopus prices today in ${esc(r.inName)}$2`);
@@ -256,6 +275,7 @@ export async function build({
       extra = regionSections(dataset, dayKey, PR, k, history);
       html = html.replace('<!--build:compare-->', extra.local + compareSection(dataset, dayKey, PR, '../', k) + extra.faq);
       html = prerender(html, day, s, `${r.name} · ${dateLabel}`);
+      html = setResultsHeading(html, r.inName);
     }
 
     const ld = [
@@ -277,6 +297,7 @@ export async function build({
         mainEntity: extra.faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
       });
     }
+    html = html.replace(/<script type="application\/ld\+json" id="ld-home">[\s\S]*?<\/script>\n?/, '');
     html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>\n</head>`);
     html = html.replace('<script src="../config.js"></script>',
       `<script>window.PLUNGE_PAGE = { region: "${k}", base: "../" };</script>\n<script src="../config.js"></script>`);
@@ -285,6 +306,19 @@ export async function build({
     await writeFile(join(outDir, r.slug, 'index.html'), html);
     pages.push({ loc: url });
   }
+
+  // Friendly 404: GitHub Pages serves this for any missing address, so links are absolute.
+  const links = Object.values(PR.REGIONS).map((r) => `<li><a href="/${r.slug}/">${esc(r.name)}</a></li>`).join('');
+  await writeFile(join(outDir, '404.html'), `<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | Plunge Radar</title><meta name="robots" content="noindex">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"></head>
+<body><main class="wrap" style="padding-block:48px">
+<h1 style="font:900 2rem/1.1 var(--font-display);margin:0">Page not found</h1>
+<p class="lead">That page doesn't exist. Today's Agile Octopus prices are on the <a href="/">home page</a>, or pick your region:</p>
+<ul class="region-links">${links}</ul>
+</main></body></html>
+`);
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
