@@ -6,6 +6,11 @@
 
 export const DISCLAIMER_UPDATED = '12 October 2026';
 
+// Contact address, written as HTML character codes so simple spam bots don't pick it up.
+export const CONTACT_EMAIL = 'raoprasji@gmail.com';
+const encode = (s) => [...s].map((c) => `&#${c.codePointAt(0)};`).join('');
+export const emailLink = () => `<a href="${encode('mailto:' + CONTACT_EMAIL)}">${encode(CONTACT_EMAIL)}</a>`;
+
 export const DISCLAIMER_SECTIONS = [
   ['About this site', [
     'Plunge Radar (plungeradar.co.uk) is a free, independent information website run by Pras Rao. It shows half-hourly prices for Agile Octopus, a variable electricity tariff from Octopus Energy, for each region of Great Britain, using Octopus Energy\'s public data.',
@@ -45,7 +50,7 @@ export const DISCLAIMER_SECTIONS = [
     'This disclaimer is governed by the law of England and Wales. If you live in Scotland or Northern Ireland, you can also bring proceedings in your local courts.',
   ]],
   ['Contact', [
-    'Questions about this site can be raised through the GitHub profile github.com/raopras.',
+    'Email {{EMAIL}} with any questions about this site. Plunge Radar is run by Pras Rao.',
   ]],
 ];
 
@@ -58,7 +63,7 @@ export function disclaimerPage({ base }) {
   const sections = DISCLAIMER_SECTIONS.map(([h, ps], i) => `
     <section class="legal-section" id="s${i + 1}">
       <h2>${i + 1}. ${esc(h)}</h2>
-      ${ps.map((p) => `<p>${esc(p)}</p>`).join('\n      ')}
+      ${ps.map((p) => `<p>${esc(p).replace('{{EMAIL}}', emailLink())}</p>`).join('\n      ')}
     </section>`).join('\n');
   const ld = {
     '@context': 'https://schema.org', '@type': 'WebPage', name: 'Disclaimer and Terms of Use', url, description, inLanguage: 'en-GB',

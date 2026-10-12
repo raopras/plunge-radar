@@ -68,6 +68,8 @@ test('build writes a landing page per region with real numbers, links and struct
   const legal = await readFile(join(outDir, 'disclaimer', 'index.html'), 'utf8');
   assert.ok(legal.includes('Your statutory rights are not affected'));
   assert.ok(legal.includes('law of England and Wales'));
+  assert.ok(legal.includes('&#109;&#97;&#105;&#108;&#116;&#111;&#58;'), 'encoded mailto link on the disclaimer');
+  assert.ok(!legal.includes('raoprasji@gmail.com'), 'address is not in plain text');
   assert.ok(sitemap.includes('<loc>https://plungeradar.co.uk/south-east-england/</loc>'));
 
   const london = await readFile(join(outDir, 'london', 'index.html'), 'utf8');
