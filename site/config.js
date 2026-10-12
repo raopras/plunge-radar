@@ -13,4 +13,16 @@ window.PLUNGE_CONFIG = {
   // Anonymous, cookie-free visit and click counting with Umami (umami.is).
   // Paste the Website ID from your Umami dashboard; leave empty to turn analytics off.
   umamiWebsiteId: "3b273825-6d33-4f07-ae92-3d5da7163d83",
+
+  // Ofgem price cap for single-rate electricity paid by Direct Debit (GB average).
+  // Update every quarter from https://www.ofgem.gov.uk/energy-price-cap.
+  // The cap line and the savings calculator hide themselves after "to".
+  priceCap: {
+    from: "2026-10-01",
+    to: "2026-12-31",
+    unitRate: 26.32,        // pence per kWh, GB average (no VAT on electricity 1 Oct 2026 to 31 Mar 2027)
+    standingCharge: 54.83,  // pence per day, GB average
+    label: "1 October to 31 December 2026",
+    source: "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+  },
 };

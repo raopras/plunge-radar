@@ -272,3 +272,32 @@ tr.is-current td:first-child { box-shadow: inset 4px 0 0 var(--cta); }
 .legal-section h2 { font-size: 1.05rem; }
 .legal-section p { margin: 0; max-width: 68ch; color: var(--ink); line-height: 1.6; }
 .legal a, footer.small a { color: var(--accent); font-weight: 600; }
+
+/* Live answer in the hero: the first thing a visitor reads after the headline. */
+.hero-answer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 14px 0 0; padding: 10px 14px;
+  border: 1px solid var(--hero-line); border-radius: 10px; background: rgba(255,255,255,0.04); max-width: 60ch; }
+.hero-answer .ha-k { color: var(--hero-muted); font-size: 0.85rem; }
+.hero-answer b { color: var(--hero-ink); font: 700 1.05rem var(--font-data); font-variant-numeric: tabular-nums; }
+.hero-answer .ha-s { color: var(--hero-muted); font: 500 0.85rem var(--font-data); }
+
+/* Price cap reference */
+.cap-fact b { color: var(--ink); }
+.cap-note { margin: 8px 0 0; font-size: 0.88rem; color: var(--muted); max-width: 70ch; }
+svg.bars .cap { stroke: var(--peak); stroke-width: 1.5; stroke-dasharray: 6 4; }
+svg.bars .cap-label { fill: var(--peak); font-weight: 700; }
+.legend i.dash { width: 16px; height: 0; border-top: 2px dashed var(--peak); border-radius: 0; background: none; }
+
+/* Savings calculator */
+.calc { padding: 18px; display: grid; gap: 12px; }
+.calc h2 { margin: 0; }
+.calc-intro { margin: 0; color: var(--muted); max-width: 70ch; }
+.calc-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.calc input[type="number"] { font: 600 1rem var(--font-data); color: var(--ink); background: var(--bg);
+  border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; min-width: 0; }
+.calc-out { border-radius: 12px; padding: 14px 16px; background: var(--cheap-wash); }
+.calc-out:empty { display: none; }
+.calc-big { margin: 0; font: 800 clamp(1.25rem, 3.5vw, 1.6rem) var(--font-display); }
+.calc-big.save { color: var(--plunge); }
+.calc-big.cost { color: var(--peak); }
+.calc-detail { margin: 6px 0 0; font-size: 0.92rem; }
+.fine-calc { margin: 0; font-size: 0.8rem; color: var(--muted); max-width: 75ch; }

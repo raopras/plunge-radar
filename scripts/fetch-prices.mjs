@@ -24,7 +24,7 @@ const DEFAULT_BASE = 'https://api.octopus.energy/v1';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function getJSON(url, { attempts = 4, log = console.log } = {}) {
+export async function getJSON(url, { attempts = 4, log = console.log } = {}) {
   let lastErr;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -48,7 +48,7 @@ async function getJSON(url, { attempts = 4, log = console.log } = {}) {
 }
 
 /** Follow the API's `next` links until every page is collected. */
-async function getAllPages(url, opts) {
+export async function getAllPages(url, opts) {
   const results = [];
   let next = url;
   let guard = 0;
@@ -129,7 +129,7 @@ export async function run({
     generatedAt: now.toISOString(),
     product: product.code,
     productName: detail.display_name ?? 'Agile Octopus',
-    units: 'pence per kWh, including 5% VAT',
+    units: 'pence per kWh, including any VAT due',
     regions: REGIONS,
     days,
   };

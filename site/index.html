@@ -42,6 +42,7 @@
     </div>
     <h1>Find the cheapest time to use electricity, every day.</h1>
     <p class="hero-lede">Agile Octopus is a smart electricity tariff from Octopus Energy where the price changes every half-hour. See today's and tomorrow's prices for your area, and the cheapest times to use power.</p>
+    <p class="hero-answer" id="hero-answer" aria-live="polite" hidden></p>
     <div class="hero-cta ref-only">
       <a data-cta="hero" class="btn-cta ref-link" id="hero-cta" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to the Agile Octopus tariff <span class="badge"><span class="reward">£50</span> credit</span></a>
       <p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit. Agile needs a smart meter.</p>
@@ -103,7 +104,9 @@
       <span>Day average <b id="avg">–</b></span>
       <span>Lowest <b id="min">–</b></span>
       <span>Highest <b id="max">–</b></span>
+      <span class="cap-fact" id="cap-fact" hidden>Price cap <b id="cap">–</b></span>
     </p>
+    <p class="cap-note" id="cap-note" hidden></p>
   </section>
 
   <aside class="promo ref-only" aria-label="Switch to the Agile Octopus tariff">
@@ -119,7 +122,7 @@
   </aside>
 
   <figure class="card chart">
-    <figcaption id="chart-caption">Price for each half-hour, pence per kWh including VAT</figcaption>
+    <figcaption id="chart-caption">Price for each half-hour, pence per kWh including any VAT due</figcaption>
     <div class="chart-scroll"><svg class="bars" id="chart" viewBox="0 0 720 260" role="img" aria-label="Bar chart of half-hourly prices"></svg></div>
     <div class="tip" id="tip" hidden></div>
     <div class="legend">
@@ -127,6 +130,7 @@
       <span><i style="background:var(--cheap)"></i>Cheapest 2 hours</span>
       <span><i style="background:var(--peak)"></i>Dearest 2 hours</span>
       <span><i style="background:var(--bar)"></i>Other half-hours</span>
+      <span class="cap-legend" id="cap-legend" hidden><i class="dash"></i>Price cap (GB average)</span>
     </div>
   </figure>
 
@@ -139,6 +143,29 @@
       </table>
     </div>
   </details>
+
+  <section class="card calc" id="calc" aria-labelledby="calc-h" hidden>
+    <h2 id="calc-h">Would Agile have saved you money?</h2>
+    <p class="calc-intro">We replay the real Agile prices for <b class="calc-area">your area</b> since <span class="calc-since">the price cap period began</span>, using a typical household's daily pattern, and compare them with the price cap.</p>
+    <form class="calc-form" id="calc-form" novalidate>
+      <div class="field">
+        <label for="calc-kwh">Electricity you use per year (kWh)</label>
+        <input id="calc-kwh" type="number" inputmode="numeric" min="500" max="20000" step="100" value="2700">
+        <p class="hint">Ofgem's typical household uses 2,700 kWh a year. Your bill or app shows your own figure.</p>
+      </div>
+      <div class="field">
+        <label for="calc-shift">How much of your use could you move to cheap times?</label>
+        <select id="calc-shift">
+          <option value="0">None</option>
+          <option value="0.1" selected>A little: washing and dishwasher (10%)</option>
+          <option value="0.2">Some: plus tumble dryer or immersion (20%)</option>
+          <option value="0.35">A lot: electric car or home battery (35%)</option>
+        </select>
+      </div>
+    </form>
+    <div class="calc-out" id="calc-out" aria-live="polite"></div>
+    <p class="fine-calc" id="calc-fine"></p>
+  </section>
 
   <section class="switch ref-only" id="switch" aria-labelledby="switch-h">
     <h2 id="switch-h">How to switch to Agile Octopus</h2>
@@ -161,7 +188,7 @@
 
   <footer class="small">
     <p>Plunge Radar is independent and not affiliated with Octopus Energy. Links marked as referral links earn us account credit if you switch through them.</p>
-    <p>Prices come from the public Octopus Energy API and include 5% VAT. Times are UK time. <span id="updated"></span></p>
+    <p>Prices come from the public Octopus Energy API and include any VAT due. There is no VAT on electricity from 1 October 2026 to 31 March 2027. Times are UK time. <span id="updated"></span></p>
     <p><b>Information only, not advice.</b> Prices and calculations can be wrong or out of date, so check your own Octopus Energy account before acting, and decide for yourself whether Agile suits your home. <a href="/disclaimer/">Read the full disclaimer</a>.</p>
     <p id="analytics-note" hidden>We count page visits and button clicks anonymously, without cookies, to see what helps visitors.</p>
     <p>Contact: <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#97;&#111;&#112;&#114;&#97;&#115;&#106;&#105;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#114;&#97;&#111;&#112;&#114;&#97;&#115;&#106;&#105;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
