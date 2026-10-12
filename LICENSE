@@ -1,0 +1,46 @@
+Copyright (c) 2026 Pras Rao. All rights reserved.
+
+Plunge Radar, including its source code, design, text, graphics, icons,
+logo, documentation and the arrangement of its content (the "Software"),
+is the exclusive property of Pras Rao.
+
+NO LICENCE IS GRANTED
+
+No permission is granted to any person to use, copy, modify, merge,
+publish, distribute, sublicense, sell, host, frame, scrape, reverse
+engineer or create derivative works from the Software, in whole or in
+part, for any purpose, commercial or non-commercial, except with the
+prior written permission of Pras Rao.
+
+Making the source code publicly viewable on GitHub does not grant any
+licence. Under GitHub's Terms of Service, other GitHub users may view
+this repository and fork it within GitHub. That limited right does not
+extend to using, copying, modifying or distributing the Software
+anywhere else, and no other right is given.
+
+Any use not expressly permitted in writing by Pras Rao is an
+infringement of copyright and may result in legal action.
+
+THIRD-PARTY MATERIAL
+
+The following are not owned by Pras Rao and are not covered by the
+claims above:
+
+  - Electricity price data, which comes from the public Octopus Energy
+    API and remains subject to Octopus Energy's own terms.
+  - The names "Octopus Energy" and "Agile Octopus", which are trade
+    marks of their owner. Plunge Radar is independent and is not
+    affiliated with or endorsed by Octopus Energy.
+  - Fonts loaded from Google Fonts, which are provided under their own
+    open licences.
+
+DISCLAIMER
+
+The Software is provided "as is", without warranty of any kind. Prices
+shown are a guide only, and Pras Rao accepts no liability for decisions
+made using them.
+
+PERMISSIONS
+
+To request permission to use any part of the Software, contact Pras Rao
+through the GitHub profile https://github.com/raopras.

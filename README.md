@@ -112,3 +112,9 @@ A day has 48 half-hours, 46 when the clocks go forward and 50 when they go back;
 - Keep the disclosure in the footer: it says the link is a referral link and that the site is independent of Octopus Energy.
 - Don't use the Octopus logo or branding.
 - Check the current referral terms on octopus.energy before big promotional pushes; they change from time to time.
+
+## Licence
+
+Copyright (c) 2026 Pras Rao. All rights reserved.
+
+This is not open-source software. The code is public so it can be viewed, but no one may use, copy, modify or redistribute it without written permission from Pras Rao. See [LICENSE](LICENSE) for the full terms.
