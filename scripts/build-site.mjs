@@ -12,6 +12,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { addDays, londonDateString } from './lib.mjs';
+import { disclaimerPage } from './legal.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -306,6 +307,11 @@ export async function build({
     await writeFile(join(outDir, r.slug, 'index.html'), html);
     pages.push({ loc: url });
   }
+
+  // Disclaimer and terms of use.
+  await mkdir(join(outDir, 'disclaimer'), { recursive: true });
+  await writeFile(join(outDir, 'disclaimer', 'index.html'), disclaimerPage({ base }));
+  pages.push({ loc: `${base}/disclaimer/` });
 
   // Friendly 404: GitHub Pages serves this for any missing address, so links are absolute.
   const links = Object.values(PR.REGIONS).map((r) => `<li><a href="/${r.slug}/">${esc(r.name)}</a></li>`).join('');

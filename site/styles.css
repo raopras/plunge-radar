@@ -262,3 +262,13 @@ tr.is-current td:first-child { box-shadow: inset 4px 0 0 var(--cta); }
 /* Let every block in the main column shrink to the screen; wide tables scroll inside their own box. */
 .wrap > * { min-width: 0; }
 .local td:first-child { white-space: nowrap; }
+
+/* Disclaimer page */
+.brand-link { color: inherit; text-decoration: none; }
+.legal { max-width: 760px; }
+.legal-summary { padding: 16px 18px; display: grid; gap: 8px; }
+.legal-summary ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.legal-section { display: grid; gap: 8px; }
+.legal-section h2 { font-size: 1.05rem; }
+.legal-section p { margin: 0; max-width: 68ch; color: var(--ink); line-height: 1.6; }
+.legal a, footer.small a { color: var(--accent); font-weight: 600; }

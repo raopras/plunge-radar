@@ -60,10 +60,14 @@ test('build writes a landing page per region with real numbers, links and struct
   } finally { server.close(); }
 
   const res = await build({ siteDir, outDir, now, siteUrl: 'https://plungeradar.co.uk', log: () => {} });
-  assert.equal(res.pages.length, 15);
+  assert.equal(res.pages.length, 16);
 
   const sitemap = await readFile(join(outDir, 'sitemap.xml'), 'utf8');
-  assert.equal((sitemap.match(/<loc>/g) || []).length, 15);
+  assert.equal((sitemap.match(/<loc>/g) || []).length, 16);
+  assert.ok(sitemap.includes('<loc>https://plungeradar.co.uk/disclaimer/</loc>'));
+  const legal = await readFile(join(outDir, 'disclaimer', 'index.html'), 'utf8');
+  assert.ok(legal.includes('Your statutory rights are not affected'));
+  assert.ok(legal.includes('law of England and Wales'));
   assert.ok(sitemap.includes('<loc>https://plungeradar.co.uk/south-east-england/</loc>'));
 
   const london = await readFile(join(outDir, 'london', 'index.html'), 'utf8');
