@@ -1,0 +1,62 @@
+# Octopus Plunge Radar — project knowledge
+
+Owner: **Pras Rao** (raoprasji@gmail.com). All rights reserved; see `LICENSE`.
+Live: **https://plungeradar.co.uk** (GitHub Pages, custom domain, HTTPS). Repo: `raopras/plunge-radar`.
+
+## Purpose
+
+Earn Octopus Energy referral credit by helping people use the **Agile Octopus** tariff well. Every switch through Pras's personal refer-a-friend link (`https://share.octopus.energy/silk-snail-210`) earns £50 credit for him and for the person switching. Pras chose the personal link, not the business affiliate route (which pays cash; worth revisiting once traffic proves out).
+
+Honest reality check given to Pras: the main search audience (people checking Agile prices) is mostly existing customers who can't use a referral. Converting traffic needs content for people *considering* switching. Estimate without his involvement: ~0/week for 1–2 months, maybe 1–2/week by months 4–6 if Google ranks the region pages.
+
+## Rules that must never be broken
+
+- **No paid advertising** of the referral link (Octopus suspends links promoted by paid ads: 3 months, then 6). Growth is organic only: SEO, sharing, social.
+- **Disclose the referral link** beside every switch button, and say the site is independent of Octopus Energy. No Octopus logo or branding.
+- **Naming:** "Agile Octopus" = the tariff, "Octopus Energy" = the company. Never "Octopus Agile". Explain early that Agile Octopus is a tariff. The SEO audit enforces this.
+- **Don't over-promise.** Switching takes time and needs a smart meter; Agile can cost more than a standard tariff at 4–7pm. Copy must stay honest (Pras rejected "Get paid like this on Agile").
+- **Thorough SEO audit at publish time**, not afterwards (Pras's standing preference). `scripts/seo-audit.mjs` runs in CI and blocks the deploy on failure; extend it rather than bypass it.
+- **Copy style:** UK English, plain words, active voice. Pras likes working on copy together: offer options with a recommendation, then apply his choice exactly.
+- Prompts written for Pras use his **ART** format: Act as / Request / Terms.
+
+## How it works
+
+```
+GitHub Action (hourly 15:07–22:07 UTC + 00:07 UTC, on push, or by hand)
+  npm test → scripts/fetch-prices.mjs → scripts/build-site.mjs → scripts/seo-audit.mjs
+  → commit site/data if changed → deploy _site/ to GitHub Pages
+```
+
+- `scripts/fetch-prices.mjs` uses only public Octopus endpoints: `/v1/products/` (finds the current Agile product, e.g. `AGILE-24-10-01`), `/v1/products/{code}/` (regional tariff codes), `.../standard-unit-rates/` (UTC times with trailing Z, follows `next` paging). It writes `site/data/latest.json` (yesterday/today/tomorrow, prices per half-hour from UK midnight, with summaries) and `site/data/archive/YYYY-MM-DD.json` for each complete day. It skips API calls when today is complete and tomorrow is published.
+- **Agile publishes 11pm–11pm**, so a calendar day's last hour (2 slots) only arrives with the next day's prices at ~4pm. `dayIsPublished` allows those 2 trailing gaps; `dayIsComplete` (archive) doesn't. Days have 46/48/50 slots around clock changes.
+- `scripts/build-site.mjs` copies `site/` to `_site/` and generates:
+  - 14 region landing pages (`/london/`, `/south-east-england/`…) from `site/index.html` as a template, with today's numbers written into the HTML, local facts (places, postcode areas, MPAN prefix, network operator, ranking), recent-days history from the archive, FAQ, and JSON-LD (Breadcrumb, WebPage, FAQPage)
+  - a "Agile prices across Great Britain" table at the `<!--build:compare-->` marker on all pages
+  - `/disclaimer/` (text in `scripts/legal.mjs`), `404.html`, `sitemap.xml`
+- `site/regions.js` is the single source for region names, slugs, in-sentence names, MPAN prefixes, network operators, the postcode-area table, and the postcode/MPAN checker. Exact lookups use Octopus `/v1/industry/grid-supply-points/?postcode=` in the browser, falling back to the area table. **Unverified:** the postcode-area table, operator mapping, and whether that endpoint allows browser (CORS) calls.
+- `site/app.js` renders the page. Region pages set `window.PLUNGE_PAGE = { region, base: '../' }`; the picker and postcode checker navigate between region pages. It also handles the Plunge Alert (Tomorrow / Later today / Happening now / Earlier today), the sticky phone bar (hides while another switch button is on screen), Umami tracking and the service worker.
+- `site/config.js`: referral URL, reward (£50), default region (C), Umami Website ID `3b273825-6d33-4f07-ae92-3d5da7163d83`.
+- Click tracking: Umami (cookie-free) events `referral-click` {button: hero|plunge|promo|steps|sticky, region, page} and `postcode-check` {result, region}. Completed switches only show in Pras's Octopus account (referral credits).
+- Installable web app: `manifest.webmanifest`, icons, `sw.js` (network-first). **Bump `CACHE` in `site/sw.js` on every release.**
+
+## Working on it
+
+- `npm test` (node:test; includes a mock-API end-to-end run, build checks and the SEO audit), `npm run build`, `npm run audit`, `npm run serve`.
+- The CI bot commits price data hourly, so before pushing: `git fetch origin main && git rebase origin/main`.
+- Commits are authored as Pras (`raopras@users.noreply.github.com`).
+- After every deploy, **check the live site in a real browser** (the Claude browser on Pras's computer). Previews have hidden bugs before (the `[hidden]` override) that only showed on the real site.
+- Gotchas: `styles.css` needs `[hidden]{display:none!important}` (classes with `display` otherwise override `hidden`); `.wrap > * { min-width: 0 }` prevents sideways scroll at 320px; the contact email is written as HTML character codes (`emailLink()` in `legal.mjs`).
+- This workspace can't reach api.octopus.energy, so test fetch logic with the mock API in tests. Live fetching happens in GitHub Actions.
+- Google Search Console (domain property `sc-domain:plungeradar.co.uk`): home page live test passed and indexing was requested on 12 Oct 2026. The sitemap showed "Couldn't fetch" (not yet read); recheck after a few days.
+
+## Legal
+
+`/disclaimer/` is plain-English UK consumer wording (England and Wales law): information only, check data yourself, decide whether Agile suits you, appliance safety, referral terms, liability limited "to the fullest extent permitted by law" **with the statutory carve-outs** (death or injury from negligence, fraud; statutory rights unaffected). Never claim total exclusion of liability, because UK law won't enforce it. Suggested to Pras: solicitor review before scaling up promotion.
+
+## Backlog and ideas
+
+- **Switch Verdict calculator**: replay a household's half-hourly usage against every Octopus tariff ("would Agile have saved you money?"). Targets non-customers, the best converter.
+- **Plug & Price**: EV and heat pump running-cost pages by region and tariff.
+- **Move-In Kit**: a white-label page for letting agents (business affiliate route).
+- Daily social posts (Instagram/TikTok) using the share card. Pras must create accounts and approve each public post.
+- **Weekly report**: Pras wants one. The first scheduled-task attempt (Mondays, reading Umami and Search Console via the Claude browser) was declined; agree the delivery method with him first. Umami needs a sign-in in the Claude browser.
