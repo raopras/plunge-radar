@@ -39,6 +39,14 @@ GitHub Action (hourly 15:07–22:07 UTC + 00:07 UTC, on push, or by hand)
 - Click tracking: Umami (cookie-free) events `referral-click` {button: hero|plunge|promo|steps|sticky, region, page} and `postcode-check` {result, region}. Completed switches only show in Pras's Octopus account (referral credits).
 - Installable web app: `manifest.webmanifest`, icons, `sw.js` (network-first). **Bump `CACHE` in `site/sw.js` on every release.**
 
+## Price cap, savings calculator and VAT (added 12 Oct 2026)
+
+- `site/config.js` → `priceCap` holds Ofgem's GB-average single-rate Direct Debit cap (unit rate, standing charge, period). **Update it every quarter** (next: from 1 Jan 2027). After `to`, the cap line, cap note and calculator hide themselves rather than show stale figures.
+- Regional cap rates sit behind a CAPTCHA on Ofgem's site, so the page uses the GB average and says so.
+- `scripts/backfill-history.mjs` runs in CI before the price fetch (continue-on-error) and fills missing archive days from `priceCap.from`; it makes no API calls once the archive is complete.
+- The build writes `data/history/<region>.json` (days since `priceCap.from`) for the calculator, which replays them against a typical household profile and compares unit costs only.
+- **VAT:** no VAT on electricity from 1 Oct 2026 to 31 Mar 2027. Copy says "including any VAT due". Revisit wording in April 2027.
+
 ## Working on it
 
 - `npm test` (node:test; includes a mock-API end-to-end run, build checks and the SEO audit), `npm run build`, `npm run audit`, `npm run serve`.
