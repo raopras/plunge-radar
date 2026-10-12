@@ -12,5 +12,5 @@ window.PLUNGE_CONFIG = {
 
   // Anonymous, cookie-free visit and click counting with Umami (umami.is).
   // Paste the Website ID from your Umami dashboard; leave empty to turn analytics off.
-  umamiWebsiteId: "",
+  umamiWebsiteId: "3b273825-6d33-4f07-ae92-3d5da7163d83",
 };
