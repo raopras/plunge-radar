@@ -127,10 +127,21 @@ input[aria-invalid="true"] { border-color: var(--error); }
 .notice { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px 16px; color: var(--muted); }
 
 .results { display: grid; gap: 12px; }
-.plunge { background: var(--plunge-wash); border: 1px solid var(--plunge); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 4px; }
+.plunge { background: var(--plunge-wash); border: 1px solid var(--plunge); border-radius: var(--radius); padding: 16px; display: grid; gap: 8px; }
+.plunge-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .plunge strong { font: 900 0.78rem var(--font-display); text-transform: uppercase; letter-spacing: 0.1em; color: var(--plunge); }
-.plunge-link { color: var(--ink); font-weight: 700; text-decoration-color: var(--plunge); text-underline-offset: 3px; justify-self: start; }
-
+.plunge-when { font: 700 0.75rem var(--font-body); background: var(--plunge); color: #fff; border-radius: 999px; padding: 3px 10px; }
+.plunge-when.past { background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+.plunge-h { margin: 0; font: 800 1.25rem/1.25 var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
+.plunge-p { margin: 0; max-width: 62ch; }
+.plunge-cta { border-top: 1px solid var(--plunge); padding-top: 12px; margin-top: 4px; display: grid; gap: 10px; }
+.plunge-cta p { margin: 0; font-size: 0.92rem; max-width: 62ch; }
+.plunge-actions { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; }
+.plunge-fine { font-size: 0.78rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .plunge-when.live { animation: plunge-pulse 2s ease-in-out infinite; }
+  @keyframes plunge-pulse { 50% { opacity: 0.65; } }
+}
 .verdict { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .window { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 3px; min-width: 0; border-top: 5px solid var(--line); }
 .window.best { border-top-color: var(--cheap); }

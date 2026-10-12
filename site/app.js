@@ -53,18 +53,19 @@
     var dismissed = false;
     try { dismissed = sessionStorage.getItem('plunge-bar') === 'off'; } catch (e) { /* ignore */ }
     if (dismissed || typeof IntersectionObserver !== 'function') return;
-    var seen = { hero: true, sw: false };
+    // Hide the bar whenever another switch button is already on screen.
+    var targets = [$('hero-cta'), $('switch'), document.querySelector('.plunge-actions')].filter(Boolean);
+    var seen = targets.map(function (t, i) { return i === 0; });
     var update = function () {
-      var show = !dismissed && !seen.hero && !seen.sw;
+      var show = !dismissed && !seen.some(Boolean);
       bar.hidden = !show;
       document.body.classList.toggle('has-bar', show);
     };
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { seen[e.target.id === 'hero-cta' ? 'hero' : 'sw'] = e.isIntersecting; });
+      entries.forEach(function (e) { seen[targets.indexOf(e.target)] = e.isIntersecting; });
       update();
     });
-    io.observe($('hero-cta'));
-    io.observe($('switch'));
+    targets.forEach(function (t) { io.observe(t); });
     $('sb-close').addEventListener('click', function () {
       dismissed = true;
       try { sessionStorage.setItem('plunge-bar', 'off'); } catch (e) { /* ignore */ }
@@ -208,14 +209,7 @@
     var area = regionName(state.region);
     $('daylabel').textContent = area + ' · ' + fmtShortDay.format(slotStart(day, 0));
 
-    if (s.negatives.length) {
-      var times = s.negatives.map(function (r) { return range(day, r.start, r.end); });
-      var lowest = Math.min.apply(null, s.negatives.map(function (r) { return r.min; }));
-      $('plunge-text').textContent = 'Prices in ' + area + ' go below zero on ' + label + ': ' + joinList(times) + ' (lowest ' + pence(lowest, 2) + '). Agile customers are paid for every unit they use then.';
-      $('plunge').hidden = false;
-    } else {
-      $('plunge').hidden = true;
-    }
+    renderPlunge(day, region.prices, s, area);
 
     $('best-time').textContent = s.cheapest2h ? range(day, s.cheapest2h.start, s.cheapest2h.end) : '–';
     $('best-price').textContent = s.cheapest2h ? 'averages ' + pence(s.cheapest2h.avg) + ' per kWh. Run the washing machine, dishwasher or car charger now.' : '';
@@ -230,6 +224,60 @@
     drawChart(day, region.prices, tags);
     drawStrip(region.prices);
     fillTable(day, region.prices, tags);
+  }
+
+  // Money in pence -> "87p" or "£1.23".
+  function money(p) { return p >= 100 ? '£' + (p / 100).toFixed(2) : Math.round(p) + 'p'; }
+
+  // The plunge alert says whether it's coming up, happening now or over,
+  // shows what it's worth in real terms, and is honest that switching takes time.
+  function renderPlunge(day, prices, s, area) {
+    var box = $('plunge');
+    if (!s.negatives.length) { box.hidden = true; return; }
+
+    var now = Date.now();
+    var startMs = function (i) { return slotStart(day, i).getTime(); };
+    var runs = s.negatives;
+    var live = runs.filter(function (r) { return startMs(r.start) <= now && now < startMs(r.end); })[0];
+    var upcoming = runs.filter(function (r) { return startMs(r.start) > now; });
+    var phase = live ? 'live' : upcoming.length ? 'next' : 'past';
+
+    var times = joinList(runs.map(function (r) { return range(day, r.start, r.end); }));
+    var lowest = Math.min.apply(null, runs.map(function (r) { return r.min; }));
+    var isTomorrow = state.which === 'tomorrow';
+
+    // What a 7 kW EV charger would be paid across the negative half-hours still to come
+    // (or all of them, for a plunge that's over): 3.5 kWh per half-hour.
+    var slotsToCount = [];
+    runs.forEach(function (r) {
+      for (var i = r.start; i < r.end; i++) if (phase === 'past' || startMs(i) + SLOT > now) slotsToCount.push(i);
+    });
+    var evEarn = slotsToCount.reduce(function (sum, i) { return sum + 3.5 * -prices[i]; }, 0);
+
+    var when = $('plunge-when'), head, text;
+    when.className = 'plunge-when ' + phase;
+    if (phase === 'live') {
+      when.textContent = 'Happening now';
+      head = 'Electricity is below zero right now, until ' + fmtTime.format(slotStart(day, live.end)) + '.';
+    } else if (phase === 'next') {
+      when.textContent = isTomorrow ? 'Tomorrow' : 'Later today';
+      head = 'Get paid to use electricity ' + (isTomorrow ? 'tomorrow' : 'today') + ', ' + times + '.';
+    } else {
+      when.textContent = 'Earlier today';
+      head = 'Electricity went below zero earlier today, ' + times + '.';
+    }
+
+    text = 'Prices in ' + area + (phase === 'past' ? ' dropped' : ' drop') + ' as low as ' + pence(lowest, 2) + ' per kWh. Agile customers are paid for every unit they use, '
+      + (phase === 'past' ? 'so it was' : 'so it’s') + ' the time to charge an EV, run the washing machine and dishwasher, or heat water.';
+    if (evEarn >= 50) {
+      text += phase === 'past'
+        ? ' A 7 kW car charger running through it would have been paid about ' + money(evEarn) + '.'
+        : ' A 7 kW car charger running through ' + (phase === 'live' ? 'the rest of it' : 'it') + ' would be paid about ' + money(evEarn) + '.';
+    }
+    $('plunge-h').textContent = head;
+    $('plunge-text').textContent = text;
+    $('plunge-cta-lead').textContent = phase === 'past' ? 'Missed this one?' : 'Not on Agile yet?';
+    box.hidden = false;
   }
 
   function joinList(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
