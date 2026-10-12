@@ -43,7 +43,7 @@
     <h1>Find the cheapest time to use electricity, every day.</h1>
     <p class="hero-lede">Half-hourly Agile Octopus prices for your area, today and tomorrow, in plain English. Updated every afternoon.</p>
     <div class="hero-cta ref-only">
-      <a class="btn-cta ref-link" id="hero-cta" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile <span class="badge"><span class="reward">£50</span> credit</span></a>
+      <a data-cta="hero" class="btn-cta ref-link" id="hero-cta" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile <span class="badge"><span class="reward">£50</span> credit</span></a>
       <p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit. Agile needs a smart meter.</p>
     </div>
     <svg class="strip" id="strip" viewBox="0 0 480 44" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -90,7 +90,7 @@
       <div class="plunge-cta ref-only">
         <p><b id="plunge-cta-lead">Not on Agile yet?</b> Wind and sun drive Agile prices down. Sometimes below zero, and Octopus pays you to use the excess electricity. Switching supplier may take a little while and Agile needs a smart meter. Start now to be ready for the next plunge pricing. You get <span class="reward">£50</span> credit when you join.</p>
         <div class="plunge-actions">
-          <a class="btn-cta small ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile</a>
+          <a data-cta="plunge" class="btn-cta small ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile</a>
           <span class="plunge-fine">Referral link: we also get <span class="reward">£50</span>.</span>
         </div>
       </div>
@@ -111,7 +111,7 @@
       <p class="promo-h">These prices are only on Agile Octopus.</p>
       <p class="promo-s">Join Octopus with our link, pick Agile, and start with <span class="reward">£50</span> credit.</p>
     </div>
-    <a class="btn-cta ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Agile</a>
+    <a data-cta="promo" class="btn-cta ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Agile</a>
   </aside>
 
   <figure class="card chart">
@@ -143,7 +143,7 @@
       <li><div><b>Choose Agile Octopus.</b> It needs a smart meter that sends half-hourly readings.</div></li>
       <li><div><b>Check Plunge Radar each afternoon.</b> Move washing, dishwashers and car charging into the cheap half-hours.</div></li>
     </ol>
-    <a class="btn-cta big ref-link" id="switch-cta" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile now <span class="badge"><span class="reward">£50</span> credit</span></a>
+    <a data-cta="steps" class="btn-cta big ref-link" id="switch-cta" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch to Octopus Agile now <span class="badge"><span class="reward">£50</span> credit</span></a>
     <p class="fine-dark">This is a referral link: we also get <span class="reward">£50</span>, which keeps this site free. Plunge Radar is independent and not affiliated with Octopus Energy.</p>
   </section>
 
@@ -159,13 +159,14 @@
     <p>Plunge Radar is independent and not affiliated with Octopus Energy. Links marked as referral links earn us account credit if you switch through them.</p>
     <p>Prices come from the public Octopus Energy API and include 5% VAT. Times are UK time. <span id="updated"></span></p>
     <p>Published prices are a guide, not a promise of savings. Check the price on your own account before you plan around it.</p>
+    <p id="analytics-note" hidden>We count page visits and button clicks anonymously, without cookies, to see what helps visitors.</p>
     <p>&copy; 2026 Pras Rao. All rights reserved.</p>
   </footer>
 </main>
 
 <div class="stickybar ref-only" id="stickybar" hidden>
   <span class="sb-text"><b><span class="reward">£50</span> credit</b> when you switch to Octopus</span>
-  <a class="btn-cta small ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch now</a>
+  <a data-cta="sticky" class="btn-cta small ref-link" href="https://share.octopus.energy/silk-snail-210" rel="sponsored noopener" target="_blank">Switch now</a>
   <button type="button" class="sb-close" id="sb-close" aria-label="Hide this bar">×</button>
 </div>
 

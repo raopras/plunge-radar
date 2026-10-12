@@ -9,4 +9,8 @@ window.PLUNGE_CONFIG = {
 
   // Region shown to first-time visitors (C = London). They can change it; the page remembers.
   defaultRegion: "C",
+
+  // Anonymous, cookie-free visit and click counting with Umami (umami.is).
+  // Paste the Website ID from your Umami dashboard; leave empty to turn analytics off.
+  umamiWebsiteId: "",
 };

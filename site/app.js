@@ -36,6 +36,34 @@
 
   function setStatus(msg) { var el = $('status'); el.textContent = msg || ''; el.hidden = !msg; }
 
+  // ---- Analytics (Umami: anonymous, no cookies) ---------------------------
+  // Off unless config.js has an umamiWebsiteId. Events queue until the script loads.
+  var queue = [];
+  function track(name, data) {
+    if (!CFG.umamiWebsiteId) return;
+    if (window.umami && typeof window.umami.track === 'function') window.umami.track(name, data);
+    else queue.push([name, data]);
+  }
+  function setupAnalytics() {
+    if (!/^[0-9a-f-]{36}$/i.test(CFG.umamiWebsiteId || '')) return;
+    var s = document.createElement('script');
+    s.defer = true;
+    s.src = 'https://cloud.umami.is/script.js';
+    s.setAttribute('data-website-id', CFG.umamiWebsiteId);
+    s.setAttribute('data-domains', 'plungeradar.co.uk,www.plungeradar.co.uk');
+    s.onload = function () { queue.splice(0).forEach(function (e) { track(e[0], e[1]); }); };
+    document.head.appendChild(s);
+    var note = $('analytics-note');
+    if (note) note.hidden = false;
+
+    // Every referral button: which one, on which page, for which region.
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a.ref-link');
+      if (!a) return;
+      track('referral-click', { button: a.getAttribute('data-cta') || 'other', region: state.region || '', page: PAGE.region ? 'region' : 'home' });
+    });
+  }
+
   // ---- Referral links ----------------------------------------------------
 
   function setupReferral() {
@@ -133,6 +161,7 @@
       if (typeof PR.lookup !== 'function') return;
       btn.disabled = true; btn.textContent = 'Checking…';
       PR.lookup(input.value).then(function (r) {
+        track('postcode-check', { result: r.status, region: r.region || '' });
         btn.disabled = false; btn.textContent = 'Check';
         if (r.status === 'error') { pcMessage('err', [r.message]); input.focus(); return; }
         if (r.status === 'exact') {
@@ -451,6 +480,7 @@
     }, 150);
   });
 
+  setupAnalytics();
   setupStickyBar(setupReferral());
   setupPostcode();
 

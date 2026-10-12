@@ -39,6 +39,23 @@ The site has a web app manifest, icons and a small service worker (`site/sw.js`)
 
 It also writes `sitemap.xml` with every page. Region names, addresses and operators live in `site/regions.js`.
 
+### Click tracking (Umami)
+
+Referral clicks are counted with [Umami](https://umami.is), which is anonymous and uses no cookies. It stays off until you add a Website ID:
+
+1. Create a free Umami Cloud account and add the website `plungeradar.co.uk`.
+2. Copy its **Website ID** into `umamiWebsiteId` in `site/config.js` and commit.
+
+Events recorded:
+
+| Event | Details | Answers |
+| --- | --- | --- |
+| Page views | automatic | Which pages people find and use |
+| `referral-click` | `button` (hero, plunge, promo, steps, sticky), `region`, `page` (home or region) | Which buttons and regions send people to Octopus |
+| `postcode-check` | `result` (exact, likely, choose, error), `region` | Whether the region checker helps |
+
+Completed switches still show only in your Octopus account (referral credits), so compare those with the clicks to see the conversion rate.
+
 ## Set up (about 10 minutes, once)
 
 You need a free GitHub account.
