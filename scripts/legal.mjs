@@ -50,7 +50,8 @@ export const DISCLAIMER_SECTIONS = [
     'This disclaimer is governed by the law of England and Wales. If you live in Scotland or Northern Ireland, you can also bring proceedings in your local courts.',
   ]],
   ['Contact', [
-    'Email {{EMAIL}} with any questions about this site. Plunge Radar is run by Pras Rao.',
+    'Email {{EMAIL}} with any questions about this site. Plunge Radar is run by Pras Rao, a sole trader.',
+    'Postal address: c/o SoloStarterHQ, 80A Ruskin Ave, Welling, London DA16 3QQ, United Kingdom.',
   ]],
 ];
 
