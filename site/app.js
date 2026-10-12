@@ -316,9 +316,9 @@
     el.hidden = false;
     el.textContent = '';
     var lead = document.createElement('span'); lead.className = 'ha-k';
-    lead.textContent = (state.which === 'tomorrow' ? 'Tomorrow' : 'Today') + ' in ' + area;
+    lead.textContent = (state.which === 'tomorrow' ? 'Tomorrow' : 'Today') + ' in ' + area + ', the cheapest 2 hours are';
     var main = document.createElement('b');
-    main.textContent = 'Cheapest 2 hours: ' + range(day, s.cheapest2h.start, s.cheapest2h.end) + ' at ' + pence(s.cheapest2h.avg);
+    main.textContent = range(day, s.cheapest2h.start, s.cheapest2h.end) + ' at ' + pence(s.cheapest2h.avg);
     el.appendChild(lead); el.appendChild(main);
     if (capActive()) {
       var cap = document.createElement('span'); cap.className = 'ha-s';
@@ -361,7 +361,8 @@
       var h = history[k];
       if (!h || !h.days.length) { box.hidden = true; return; }
       box.hidden = false;
-      var kwh = Math.min(20000, Math.max(500, Number($('calc-kwh').value) || 2700));
+      var kwh = Math.min(20000, Math.max(500, Math.round(Number($('calc-kwh').value) || 2700)));
+      if (String(kwh) !== $('calc-kwh').value) $('calc-kwh').value = kwh;
       var shift = Number($('calc-shift').value) || 0;
       var r = estimate(h.days, kwh, shift);
       var perYear = (r.cap - r.agile) / r.days * 365;

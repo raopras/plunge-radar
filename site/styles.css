@@ -277,14 +277,14 @@ tr.is-current td:first-child { box-shadow: inset 4px 0 0 var(--cta); }
 .hero-answer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 14px 0 0; padding: 10px 14px;
   border: 1px solid var(--hero-line); border-radius: 10px; background: rgba(255,255,255,0.04); max-width: 60ch; }
 .hero-answer .ha-k { color: var(--hero-muted); font-size: 0.85rem; }
-.hero-answer b { color: var(--hero-ink); font: 700 1.05rem var(--font-data); font-variant-numeric: tabular-nums; }
+.hero-answer b { color: var(--hero-ink); font: 700 1.05rem var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .hero-answer .ha-s { color: var(--hero-muted); font: 500 0.85rem var(--font-data); }
 
 /* Price cap reference */
 .cap-fact b { color: var(--ink); }
 .cap-note { margin: 8px 0 0; font-size: 0.88rem; color: var(--muted); max-width: 70ch; }
 svg.bars .cap { stroke: var(--peak); stroke-width: 1.5; stroke-dasharray: 6 4; }
-svg.bars .cap-label { fill: var(--peak); font-weight: 700; }
+svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
 .legend i.dash { width: 16px; height: 0; border-top: 2px dashed var(--peak); border-radius: 0; background: none; }
 
 /* Savings calculator */
