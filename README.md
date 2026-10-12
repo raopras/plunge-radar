@@ -2,7 +2,7 @@
 
 A free, self-updating web page showing today's and tomorrow's **Agile Octopus** half-hourly electricity prices for every UK region, with the cheapest and dearest times in plain English and a highlight whenever prices go below zero. Each page carries your Octopus referral link.
 
-It is a static site on **GitHub Pages**. A scheduled **GitHub Action** fetches new prices every afternoon, saves them to the repo and republishes the page. After setup there is nothing to run, host or pay for.
+Live at **https://plungeradar.co.uk**. It is a static site on **GitHub Pages**. A scheduled **GitHub Action** fetches new prices every afternoon, saves them to the repo and republishes the page. After setup there is nothing to run, host or pay for.
 
 ## How it works
 

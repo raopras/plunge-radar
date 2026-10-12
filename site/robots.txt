@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://plungeradar.co.uk/sitemap.xml
