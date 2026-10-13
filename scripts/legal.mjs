@@ -25,7 +25,7 @@ export const DISCLAIMER_SECTIONS = [
     'Before you act on anything here, check the prices for your own tariff and region in your Octopus Energy account or app.',
   ]],
   ['Decide whether a tariff suits you', [
-    'Agile Octopus prices change every half-hour and follow the wholesale market. They can be higher than a standard or capped tariff, particularly from 4pm to 7pm, and sometimes for long periods. Past prices don\'t predict future prices, and there is no guarantee of savings.',
+    'Agile Octopus prices change every half-hour and follow the wholesale market. They can be higher than a standard or capped tariff, particularly from 4pm to 7pm, and Octopus Energy says they can spike up to 100p per kWh at any time. Past prices don\'t predict future prices, and there is no guarantee of savings.',
     'Agile needs a smart meter that sends half-hourly readings. It tends to suit homes that can move their electricity use to cheaper times. If you can\'t easily change when you use power, rely on electricity for medical equipment or heating, or need predictable bills, a fixed or standard tariff may suit you better.',
     'Octopus Tracker prices change daily and can be much higher in winter. Intelligent Octopus Go has a higher day rate and an exit fee, and only works with supported cars and chargers. Flexible Octopus prices can rise when Octopus Energy reviews them. Tariff rates, terms and eligibility are set by Octopus Energy and can change at any time.',
     'Before switching, check your current supplier\'s exit fees and Octopus Energy\'s own terms. For free, impartial help, contact Citizens Advice or read Ofgem\'s guidance. The decision to switch, and to use electricity at any particular time, is yours.',

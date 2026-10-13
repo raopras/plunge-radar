@@ -106,7 +106,7 @@ function compareSection(dataset, dayKey, PR, prefix, current) {
   return `
   <section class="card compare" aria-labelledby="compare-h">
     <h2 id="compare-h">Agile prices across Great Britain, ${esc(fmtShort.format(slotStart(day, 0)))}</h2>
-    <p class="lead">Ranked by the day's average price, cheapest first. The average across all 14 regions is ${pence(gbAvg)} per kWh. Prices differ by region because each one has its own network charges.</p>
+    <p class="lead">Ranked by the day's average price, cheapest first. The average across all 14 regions is ${pence(gbAvg)} per kWh. Octopus Energy sets a separate Agile price for each region.</p>
     <div class="table-scroll">
       <table>
         <thead><tr><th class="n">#</th><th>Region</th><th class="p">Average</th><th class="p">Lowest</th><th>Cheapest 2 hours</th></tr></thead>
@@ -161,15 +161,15 @@ ${recent.map((h) => `<tr><td>${esc(fmtShort.format(new Date(Date.parse(h.start))
 
   const faqs = [
     [`When are tomorrow's Agile prices for ${r.inName} published?`,
-      `Octopus publishes the next day's Agile prices at around 4pm UK time. Plunge Radar checks every hour from 4pm and updates this page as soon as they're out.`],
+      `Octopus Energy publishes the next day's Agile prices between 4pm and 8pm UK time, usually nearer 4pm. Plunge Radar checks every hour from 4pm and updates this page as soon as they're out.`],
     [`Why are Agile prices different in ${r.inName}?`,
-      `Agile prices follow the wholesale electricity market, plus network charges that vary across Great Britain's 14 electricity regions. ${s ? `Today ${r.inName} averages ${pence(s.avg)} per kWh, ${ordinal(rank)} cheapest of ${ranked.length}.` : ''}`.trim()],
+      `Agile prices follow the wholesale electricity market, and Octopus Energy sets a separate price for each of Great Britain's 14 electricity regions. ${s ? `Today ${r.inName} averages ${pence(s.avg)} per kWh, ${ordinal(rank)} cheapest of ${ranked.length}.` : ''}`.trim()],
     [`How do I know I'm in the ${r.name} region?`,
       `Look at the MPAN on your electricity bill. If its 13-digit number starts with ${r.mpan}, you're in ${r.name} (region ${k}). You can also enter your postcode in the checker at the top of this page.`],
     [`Can Agile prices go below zero in ${r.inName}?`,
       `Yes. When wind and solar produce more electricity than the grid needs, prices can drop below zero, and Agile customers are paid for the electricity they use.${negTotal > 0 ? ` Since ${since}, that's happened for ${negTotal} half-hour${negTotal === 1 ? '' : 's'} in ${r.inName}.` : ''}`],
     ['Do I need a smart meter for Agile Octopus?',
-      'Yes. Agile needs a smart meter that sends half-hourly readings to Octopus. If you don\'t have one, Octopus can fit one at no extra cost.'],
+      'Yes. Agile needs a smart meter that sends half-hourly readings to Octopus. If you don\'t have one, Octopus Energy says it can install one at no extra cost.'],
   ];
 
   const local = `

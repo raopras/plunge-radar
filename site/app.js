@@ -219,7 +219,7 @@
 
     var hasTomorrow = !!data.days[dates.tomorrow];
     $('day-tomorrow').disabled = !hasTomorrow;
-    $('day-tomorrow').title = hasTomorrow ? '' : "Octopus publishes tomorrow's prices around 4pm";
+    $('day-tomorrow').title = hasTomorrow ? '' : "Octopus Energy publishes tomorrow's prices between 4pm and 8pm, usually nearer 4pm";
     var hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hourCycle: 'h23' }).format(new Date()));
     state.which = hasTomorrow && hour >= 16 ? 'tomorrow' : 'today';
     ['today', 'tomorrow'].forEach(function (w) {
@@ -245,7 +245,7 @@
     var ageHours = (Date.now() - Date.parse(data.generatedAt)) / 36e5;
     if (!day) {
       setStatus(state.which === 'tomorrow'
-        ? "Tomorrow's prices aren't out yet. Octopus publishes them around 4pm; this page updates shortly after."
+        ? "Tomorrow's prices aren't out yet. Octopus Energy publishes them between 4pm and 8pm, usually nearer 4pm; this page updates shortly after."
         : "Today's prices haven't loaded yet. The page updates itself every afternoon, so please check back soon.");
       clearAll();
       return;

@@ -1,6 +1,6 @@
 # Octopus tariff guide: facts sheet
 
-Checked word for word against each official page on 13 October 2026, in a browser (not a summary). Every claim on the /octopus-tariffs/ pages comes from this list.
+Checked word for word against each official page on 13 October 2026, in a browser (not a summary). Every claim on the site (home, region, tariff and disclaimer pages) comes from this list.
 Rates are for paying by monthly Direct Debit. There's no VAT on electricity from 1 Oct 2026 to 31 Mar 2027:
 the API now shows the same value with and without VAT (Tracker days before 1 October included 5%).
 
@@ -12,6 +12,10 @@ the API now shows the same value with and without VAT (Tracker days before 1 Oct
 ## Agile Octopus (AGILE-24-10-01)
 - Half-hourly prices tied to wholesale prices; next day's prices published 4pm to 8pm, usually nearer 4pm. Capped at 100p/kWh. Can go below zero (plunge pricing). Needs a smart meter Octopus can read remotely (SMETS2, or SMETS1 made by Secure); connection usually takes around 14 days.
 - Agile page: best suited to customers who can shift large amounts of use to avoid peaks; peaks usually 4pm to 7pm; prices can spike up to 100p at any time; the page also says it's likely you'll save more on a standard variable or fixed tariff through the winter when wholesale prices are high.
+- Agile page: "Agile's prices are often cheaper when the energy in the grid is greener, and more expensive when energy's dirtier (usually between 4-7pm)"; "whenever more electricity is generated than consumed, energy prices fall – sometimes to the point where prices drop below zero"; Plunge Pricing "lets you ... get paid for the electricity you use".
+- Intelligent Octopus Go FAQs: "Energy's usually greenest (and cheapest) overnight."
+- Tracker FAQs: "If you don't have a smart meter yet, we can install one at no extra cost."
+- Separate Agile price per region: one tariff code per region in the API (E-1R-AGILE-24-10-01-A … -P).
 - API: 12-month term, exit fee £0. London standing charge 37.65p a day.
 
 ## Intelligent Octopus Go (IOG-SMB-FIX-12M-26-10-01, "12M Fixed")
