@@ -119,7 +119,7 @@ function brand(crumbs) {
 function cta(id, label, { big = false, small = false } = {}) {
   return `<a data-cta="${id}" class="btn-cta${big ? ' big' : ''}${small ? ' small' : ''} ref-link" href="{{REF}}" rel="sponsored noopener" target="_blank">${label}</a>`;
 }
-const heroFine = '<p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit once your switch completes and your first Direct Debit is paid. Plunge Radar is independent of Octopus Energy.</p>';
+const heroFine = '<p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit once you\'re on supply and your first Direct Debit is paid. Plunge Radar is independent of Octopus Energy.</p>';
 
 function regionPicker(PR, k) {
   const opts = Object.entries(PR.REGIONS).map(([key, r]) => `<option value="${key}"${key === k ? ' selected' : ''}>${esc(r.name)}</option>`).join('');
@@ -283,7 +283,7 @@ export const PAGES = [
     title: 'Octopus Tracker Tariff: Daily Prices and Who It Suits',
     description: 'Octopus Tracker explained: one electricity price a day linked to wholesale costs, today\'s rate for your region, the risks in winter, and how to switch.',
     h1: 'Octopus Tracker: one electricity price a day, set by the market',
-    lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, linked to that day\'s wholesale price. You don\'t have to plan around half-hours, but it pays to use less on pricey days.',
+    lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, set from an independently published wholesale market price. You don\'t have to plan around half-hours, but it pays to use less on pricey days.',
     glance: (S, k, cap) => [
       ['How the price works', 'A new price every day, from a published formula'],
       [`Today (${S.trackerDate})`, `${v(S, k, 'trackerToday')} per kWh`],
