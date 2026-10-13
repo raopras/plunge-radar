@@ -136,7 +136,7 @@ function switchSection(name, step2, ref) {
   <section class="switch ref-only" id="switch" aria-labelledby="switch-h">
     <h2 id="switch-h">How to switch to ${esc(name)}</h2>
     <ol class="steps">
-      <li><div><b>Join Octopus Energy with our link.</b> Choose Flexible Octopus when you sign up: it has no exit fees. You get <span class="reward">£50</span> credit once your switch completes and your first Direct Debit is paid. Switching usually takes a few weeks.</div></li>
+      <li><div><b>Join Octopus Energy with our link.</b> Choose Flexible Octopus when you sign up: it has no exit fees. You get <span class="reward">£50</span> credit once you're on supply and your first Direct Debit is paid, which Octopus Energy says typically takes around four weeks.</div></li>
       <li><div>${step2}</div></li>
     </ol>
     ${cta('steps', `Join Octopus Energy <span class="badge"><span class="reward">£50</span> credit</span>`, { big: true })}
@@ -234,13 +234,14 @@ export const PAGES = [
     how: [
       'Octopus Energy sets a price for each half-hour of the next day from wholesale prices, and publishes it between 4pm and 8pm, usually nearer 4pm.',
       'Prices are usually lowest overnight and when it\'s windy or sunny, and highest from 4pm to 7pm. When the grid has more power than it needs, the price can drop below zero, and you are paid for the electricity you use. Octopus Energy calls this plunge pricing.',
-      'At the 4pm to 7pm peak, Agile often costs more than the price cap rate. Whether you save depends on how much of your use you can move to cheaper times.',
+      'Octopus Energy says Agile suits customers who can shift large amounts of their use away from the expensive peaks, usually between 4pm and 7pm, often with smart tech such as batteries or solar. Prices can spike up to 100p per kWh at any time.',
+      'Octopus Energy\'s Agile page also says that when wholesale prices are high, you\'re likely to save more on a standard variable or fixed tariff through the winter. Check the recent prices on Plunge Radar before you decide.',
     ],
-    suits: ['You can run the washing machine, dishwasher or tumble dryer at cheap times', 'You charge an electric car, or have a home battery or heat pump you can schedule', 'You\'re happy to check prices, or use apps and timers that do it for you'],
+    suits: ['You can shift a large share of your use away from the 4pm to 7pm peak', 'You have an electric car, home battery, solar panels or storage heaters you can schedule', 'You\'re happy to check prices each afternoon, or use apps and timers that do it for you'],
     notFor: ['Most of your use falls between 4pm and 7pm', 'You need predictable bills', 'You rely on electricity for medical equipment or essential heating at peak times'],
-    step2: '<b>Switch to Agile Octopus in your account.</b> Once your supply has moved and Octopus Energy can read your smart meter (it usually takes around 14 days to connect), change tariff in the app or online account. Then use <a href="/">Plunge Radar</a> each afternoon to plan around tomorrow\'s prices.',
+    step2: '<b>Sign up for Agile Octopus.</b> Once you\'re a customer, Octopus Energy needs to connect to your smart meter (usually around 14 days), then emails you to accept the Agile terms and your tariff changes. Then use <a href="/">Plunge Radar</a> each afternoon to plan around tomorrow\'s prices.',
     faqs: (S, k) => [
-      ['Can Agile Octopus cost more than a standard tariff?', 'Yes. At peak times, especially 4pm to 7pm, Agile prices are often above the price cap rate, and in a cold, still spell they can stay high for days. It suits homes that can move their use to cheaper times.'],
+      ['Can Agile Octopus cost more than a standard tariff?', 'Yes. Octopus Energy says Agile prices can spike up to 100p per kWh at any time, are usually most expensive between 4pm and 7pm, and that when wholesale prices are high you\'re likely to save more on a standard variable or fixed tariff through the winter. It suits homes that can shift a lot of their use away from the peaks.'],
       ['When are Agile prices published?', 'Octopus Energy publishes the next day\'s half-hourly prices between 4pm and 8pm, usually nearer 4pm. Plunge Radar shows them for your region as soon as they\'re out.'],
       ['What is the most Agile Octopus can charge?', 'Octopus Energy caps Agile prices at 100p per kWh, including any VAT due.'],
       [`What do Agile prices look like ${S.regions[k].inRegion}?`, `Today Agile averages ${S.regions[k].agileToday} per kWh ${S.regions[k].inRegion}, and ${S.regions[k].agileAvg30} on average over the last ${S.agileDays || 30} days. See every half-hour on the Plunge Radar home page.`],
@@ -259,30 +260,30 @@ export const PAGES = [
       ['Other times', `${v(S, k, 'goDay')} per kWh`],
       ['Standing charge', `${v(S, k, 'goStanding')} a day`],
       ['Contract', 'Fixed for 12 months, £50 exit fee'],
-      ['You need', 'An electric car or charger that works with Intelligent Octopus Go, and a smart meter'],
+      ['You need', 'A supported electric car or charger, a smart meter sending half-hourly readings, and an iPhone or Android phone for the Octopus app'],
     ],
     how: [
       'Every night from 11:30pm to 5:30am, all the electricity your home uses is charged at the cheap rate.',
-      'When you plug in, you tell the Octopus app how much charge you need and by when. Octopus Energy then charges your car in the cheapest half-hours, up to six hours in every 24. Smart charging outside the overnight window is also billed at the cheap rate.',
-      'The day rate is well above the price cap rate, so the tariff pays off when a big share of your use, usually the car, happens in the cheap hours. Charging straight away with a "bump charge" is billed at the day rate.',
+      'When you plug in, you tell the Octopus app how much charge you need and by when. Octopus Energy schedules the charging when energy is expected to be cheaper. Your first 6 hours of smart charging each day are billed at the cheap rate, whenever they happen.',
+      'The day rate is well above the price cap rate, so the tariff pays off when a big share of your use, usually the car, happens in the cheap hours. Charging straight away with a "bump charge", or any charging Octopus Energy hasn\'t scheduled, is billed at the day rate.',
     ],
     suits: ['You charge an electric car at home most nights', 'Your car or charger is on Octopus Energy\'s supported list', 'You can run other big appliances overnight too'],
-    notFor: ['You don\'t have an electric car, or charge mostly away from home', 'Your car and charger aren\'t supported', 'Most of your home\'s use is during the day, at the higher day rate'],
-    step2: '<b>Switch to Intelligent Octopus Go in your account.</b> First check that your car or charger is supported on Octopus Energy\'s website. Once your supply has moved, change tariff in the app and connect your car or charger.',
+    notFor: ['You don\'t have an electric car, or charge mostly away from home (it only works for home charging)', 'Your car and charger aren\'t supported (Octopus Energy suggests its Octopus Go tariff instead)', 'Most of your home\'s use is during the day, at the higher day rate'],
+    step2: '<b>Sign up for Intelligent Octopus Go.</b> First check that your car or charger is supported on Octopus Energy\'s Intelligent Octopus Go page. Once you\'re on supply and your smart meter is sending half-hourly readings, sign up and connect your car or charger in the Octopus app.',
     faqs: (S, k) => [
-      ['Which cars and chargers work with Intelligent Octopus Go?', 'Octopus Energy keeps a list of supported cars and chargers and asks you to check yours before you switch. Support can change as makers update their software.'],
+      ['Which cars and chargers work with Intelligent Octopus Go?', 'Octopus Energy says it works with over 280 cars and selected chargers. You can check yours on its Intelligent Octopus Go page before you switch.'],
       ['Is there an exit fee?', 'Yes. Intelligent Octopus Go is fixed for 12 months and has a £50 exit fee if you change tariff or supplier early.'],
-      ['Do I get the cheap rate for the whole house?', 'Yes. From 11:30pm to 5:30am all your home\'s electricity is charged at the cheap rate, and so is any smart charging Octopus Energy schedules outside those hours.'],
+      ['Do I get the cheap rate for the whole house?', 'Yes, from 11:30pm to 5:30am every night. On top of that, your first 6 hours of smart charging each day are billed at the cheap rate, even if Octopus Energy schedules them outside those hours.'],
       [`What are the rates ${S.regions[k].inRegion}?`, `The cheap rate is ${S.regions[k].goNight} per kWh, the day rate is ${S.regions[k].goDay} per kWh and the standing charge is ${S.regions[k].goStanding} a day, for Direct Debit customers.`],
     ],
   },
   {
     slug: 'tracker', name: 'Octopus Tracker', short: 'Tracker',
-    oneLine: 'One price a day that follows the wholesale market. No need to shift your use.',
+    oneLine: 'One price a day that follows the wholesale market. Use less on pricey days.',
     title: 'Octopus Tracker Tariff: Daily Prices and Who It Suits',
     description: 'Octopus Tracker explained: one electricity price a day linked to wholesale costs, today\'s rate for your region, the risks in winter, and how to switch.',
     h1: 'Octopus Tracker: one electricity price a day, set by the market',
-    lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, linked to that day\'s wholesale price. You don\'t need to change when you use power.',
+    lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, linked to that day\'s wholesale price. You don\'t have to plan around half-hours, but it pays to use less on pricey days.',
     glance: (S, k, cap) => [
       ['How the price works', 'A new price every day, from a published formula'],
       [`Today (${S.trackerDate})`, `${v(S, k, 'trackerToday')} per kWh`],
@@ -294,15 +295,15 @@ export const PAGES = [
     ],
     how: [
       'Each day\'s price is worked out from the previous day\'s wholesale electricity price, using a formula Octopus Energy publishes for each region. For people joining since 1 April 2026, it is the wholesale price multiplied by a regional factor, plus a fixed amount for network and other costs.',
-      'Octopus Energy says prices tend to be lower in warmer months and higher in colder months, when they can be much higher. Over a winter, Tracker can cost more than the price cap.',
+      'Octopus Energy says prices tend to be lower in warmer months, then typically increase, likely double, in colder months. Over a winter, Tracker can cost more than the price cap.',
       'The formula and standing charge are fixed for 12 months. You can leave at any time with no exit fee, but if you leave during those 12 months you have to wait 9 months to rejoin.',
     ],
-    suits: ['You want to pay close to wholesale cost without changing your routine', 'You can cope with higher bills in a cold winter in exchange for cheaper spells', 'You\'d like a simple daily price rather than a half-hourly one'],
+    suits: ['You can use energy flexibly: less on pricey days, more on cheap ones', 'You don\'t mind feeling the market\'s peaks and troughs first', 'You\'d like a simple daily price rather than a half-hourly one'],
     notFor: ['You need predictable bills, especially in winter', 'You can shift a lot of your use to cheap times (Agile may suit you better)', 'You\'d struggle if prices rose sharply for weeks'],
-    step2: '<b>Switch to Octopus Tracker in your account.</b> Once your supply has moved and Octopus Energy is reading your smart meter, sign up for Tracker online. Octopus Energy emails you to accept the Tracker terms, then your tariff changes. This page covers Tracker for electricity only.',
+    step2: '<b>Sign up for Octopus Tracker.</b> Once you\'re a customer, Octopus Energy needs to connect to your smart meter (usually around 14 days), then emails you to accept the Tracker terms and your tariff changes. This page covers Tracker for electricity only.',
     faqs: (S, k) => [
       ['How is the Octopus Tracker price set?', 'Each day\'s price comes from the previous day\'s wholesale electricity price, multiplied by a regional factor, plus a fixed amount for non-wholesale costs. Octopus Energy publishes the formula for each region in its Tracker FAQs.'],
-      ['Can Octopus Tracker cost more than the price cap?', 'Yes. Octopus Energy says prices tend to rise in colder months. The price is capped at 100p per kWh, which is far above the price cap rate, so winter bills can be much higher than on a capped tariff.'],
+      ['Can Octopus Tracker cost more than the price cap?', 'Yes. Octopus Energy says prices typically increase, likely double, in colder months, and the daily price is capped at 100p per kWh, a lot higher than the price cap. Octopus Energy says that if you can\'t afford prices to go that high, you\'re probably better off on a protected tariff such as Flexible Octopus.'],
       ['Is there an exit fee?', 'No. You can leave Octopus Tracker at any time without a fee. If you leave within the 12-month term, you can\'t rejoin for 9 months.'],
       [`What is the Tracker price ${S.regions[k].inRegion} today?`, `Today it is ${S.regions[k].trackerToday} per kWh ${S.regions[k].inRegion}, with an average of ${S.regions[k].trackerAvg30} over the last 30 days.`],
     ],
@@ -315,14 +316,14 @@ export const PAGES = [
     h1: 'Flexible Octopus: the simple variable tariff',
     lede: 'Flexible Octopus is Octopus Energy\'s standard variable electricity tariff. The price usually changes every three months, there are no exit fees, and you don\'t need a smart meter.',
     glance: (S, k, cap) => [
-      ['How the price works', 'One unit rate, usually reviewed every three months'],
+      ['How the price works', 'One unit rate that rises or falls every three months with wholesale energy'],
       ['Unit rate', `${v(S, k, 'flexUnit')} per kWh${cap ? ` (price cap: ${p1(cap.unitRate)})` : ''}`],
       ['Standing charge', `${v(S, k, 'flexStanding')} a day`],
       ['Exit fee', 'None'],
-      ['You need', 'Nothing special: any meter works'],
+      ['You need', 'No smart meter needed'],
     ],
     how: [
-      'You pay the same unit rate whatever the time of day. Octopus Energy reviews the price with the cost of supply, usually every three months.',
+      'You pay the same unit rate whatever the time of day. Octopus Energy says the price will rise or fall every three months with wholesale energy.',
       'Flexible Octopus is also the tariff most people join on. You can move to Agile Octopus, Intelligent Octopus Go or Octopus Tracker later from your account, once you have a smart meter.',
     ],
     suits: ['You want a simple tariff with no exit fees', 'You don\'t have a smart meter yet', 'You aren\'t sure yet and want to join Octopus Energy first, then choose a smart tariff'],
@@ -330,7 +331,7 @@ export const PAGES = [
     step2: '<b>Choose Flexible Octopus when you sign up.</b> That\'s it. If you get a smart meter later, you can switch to a smart tariff from your account.',
     faqs: (S, k) => [
       ['Does Flexible Octopus have exit fees?', 'No. You can leave or change tariff at any time without a fee.'],
-      ['How often does the Flexible Octopus price change?', 'Usually every three months, in line with the cost of supply. Octopus Energy tells you before your rates change.'],
+      ['How often does the Flexible Octopus price change?', 'Octopus Energy says Flexible Octopus prices rise or fall every three months with wholesale energy.'],
       ['Do I need a smart meter for Flexible Octopus?', 'No. Flexible Octopus works with any meter. You need a smart meter only if you want to move to a smart tariff such as Agile Octopus later.'],
       [`What are the Flexible Octopus rates ${S.regions[k].inRegion}?`, `The unit rate is ${S.regions[k].flexUnit} per kWh and the standing charge is ${S.regions[k].flexStanding} a day, for Direct Debit customers.`],
     ],
@@ -396,7 +397,7 @@ function hubPage({ S, k, base, cap, ref, PR }) {
   const title = 'Which Octopus Energy Tariff Suits You? | Plunge Radar';
   const description = 'Compare Agile Octopus, Intelligent Octopus Go, Octopus Tracker and Flexible Octopus: live rates for your region, a 4-question quiz, and how to switch.';
   const faqs = [
-    ['Which Octopus Energy tariff is cheapest?', 'It depends on when you use electricity. Intelligent Octopus Go is usually cheapest for electric car owners who charge overnight. Agile Octopus can be cheapest if you move a lot of your use to cheap half-hours. Octopus Tracker follows the wholesale price day by day. Flexible Octopus is the simple option with no exit fees.'],
+    ['Which Octopus Energy tariff is cheapest?', 'It depends on when you use electricity. For electric car owners, Octopus Energy says Intelligent Octopus Go customers typically saved £771 over May 2025 to April 2026 compared with Flexible Octopus. Agile Octopus suits homes that can shift a lot of use away from the 4pm to 7pm peak. Octopus Tracker suits homes that can use less on pricey days. Flexible Octopus is the simple option with no exit fees.'],
     ['Can I change Octopus Energy tariff later?', 'Yes. Once you\'re a customer you can change tariff in your account or app. Intelligent Octopus Go has a £50 exit fee if you leave within 12 months, and if you leave Octopus Tracker within its 12-month term you wait 9 months to rejoin.'],
     ...SHARED_FAQS,
   ];
@@ -417,7 +418,7 @@ function hubPage({ S, k, base, cap, ref, PR }) {
     ['agile', 'Changes every half-hour', `Today ${v(S, k, 'agileToday')} average; ${v(S, k, 'agileAvg30')} over ${S.agileDays || 30} days`, v(S, k, 'agileStanding'), 'None', 'Smart meter'],
     ['intelligent-octopus-go', 'Two fixed rates for 12 months', `${v(S, k, 'goNight')} from 11:30pm to 5:30am; ${v(S, k, 'goDay')} other times`, v(S, k, 'goStanding'), '£50', 'Electric car, supported car or charger, smart meter'],
     ['tracker', 'Changes every day', `Today ${v(S, k, 'trackerToday')}; ${v(S, k, 'trackerAvg30')} over 30 days`, v(S, k, 'trackerStanding'), 'None', 'Smart meter'],
-    ['flexible', 'Usually changes every 3 months', v(S, k, 'flexUnit'), v(S, k, 'flexStanding'), 'None', 'Any meter'],
+    ['flexible', 'Changes every 3 months', v(S, k, 'flexUnit'), v(S, k, 'flexStanding'), 'None', 'No smart meter needed'],
   ].map(([slug, how, unit, sc, fee, need]) => {
     const p = PAGES.find((x) => x.slug === slug);
     return `<tr><th scope="row"><a href="/${SECTION}/${slug}/">${esc(p.name)}</a></th><td data-label="Price"><span>${how}</span></td><td class="u" data-label="Unit rate"><span>${unit}</span></td><td class="p" data-label="Standing charge"><span>${sc}</span></td><td data-label="Exit fee"><span>${fee}</span></td><td data-label="You need"><span>${need}</span></td></tr>`;

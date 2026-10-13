@@ -100,7 +100,7 @@
     'intelligent-octopus-go': {
       name: 'Intelligent Octopus Go',
       why: function (d, a) {
-        return (a.ev === 'soon' ? 'Once your car arrives, ' : '') + 'charging at home overnight is where most homes with an electric car save. You pay ' + d.goNight + ' per kWh from 11:30pm to 5:30am ' + d.inRegion + ', and Octopus Energy schedules your charging at the cheapest times. Other times cost ' + d.goDay + ', and the rates are fixed for 12 months (£50 exit fee).';
+        return (a.ev === 'soon' ? 'Once your car arrives, ' : '') + 'Intelligent Octopus Go is Octopus Energy\'s tariff for charging an electric car at home. You pay ' + d.goNight + ' per kWh from 11:30pm to 5:30am ' + d.inRegion + ', and up to 6 hours a day of smart charging at that rate. Other times cost ' + d.goDay + ', and the rates are fixed for 12 months (£50 exit fee). Check your car or charger is supported first; if it isn\'t, Octopus Energy suggests its Octopus Go tariff.';
       },
     },
     agile: {
@@ -112,7 +112,7 @@
     tracker: {
       name: 'Octopus Tracker',
       why: function (d) {
-        return 'You\'re happy with a changing price but don\'t want to plan around half-hours. Tracker sets one price a day from the wholesale market: ' + d.trackerToday + ' per kWh today ' + d.inRegion + ', ' + d.trackerAvg30 + ' on average over 30 days. Prices tend to rise in colder months, so expect higher winter bills.';
+        return 'You\'re happy with a changing price and can use less on pricey days, without planning around half-hours. Tracker sets one price a day from the wholesale market: ' + d.trackerToday + ' per kWh today ' + d.inRegion + ', ' + d.trackerAvg30 + ' on average over 30 days. Octopus Energy says prices typically increase, likely double, in colder months.';
       },
     },
     flexible: {
@@ -127,7 +127,11 @@
   function pickTariff(a) {
     if (a.ev === 'yes' || a.ev === 'soon') return 'intelligent-octopus-go';
     if (a.change === 'fixed') return 'flexible';
-    return a.shift === 'lot' ? 'agile' : 'tracker';
+    // Octopus Energy's own guidance: Agile for homes that shift a lot, Tracker for homes that
+    // can use less on pricey days, Flexible for everyone else.
+    if (a.shift === 'lot') return 'agile';
+    if (a.shift === 'some') return 'tracker';
+    return 'flexible';
   }
   window.PlungePickTariff = pickTariff;
 
