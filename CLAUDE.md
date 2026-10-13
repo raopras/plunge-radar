@@ -57,6 +57,13 @@ GitHub Action (hourly 15:07–22:07 UTC + 00:07 UTC, on push, or by hand)
 - This workspace can't reach api.octopus.energy, so test fetch logic with the mock API in tests. Live fetching happens in GitHub Actions.
 - Google Search Console (domain property `sc-domain:plungeradar.co.uk`): home page live test passed and indexing was requested on 12 Oct 2026. The sitemap showed "Couldn't fetch" (not yet read); recheck after a few days.
 
+## Octopus tariff guide (/octopus-tariffs/, added 13 Oct 2026)
+
+- Hub (`/octopus-tariffs/`: 4-question quiz, comparison table) plus `/agile/`, `/intelligent-octopus-go/`, `/tracker/` (electricity only), `/flexible/`. Built by `scripts/tariff-pages.mjs`; client code in `site/tariffs.js` (region switch, quiz, copy-link box, sticky bar, Umami events `referral-click` {button, page, region, tariff}, `referral-copy`, `tariff-quiz`).
+- Aim: referral income. Every page has the referral link in the hero, quiz result, switch steps, sticky bar and a copy-link box, with disclosure and the independence note. Agile, Go and Tracker need an existing Octopus account, so the copy says: join on Flexible Octopus with our link, then change tariff.
+- `scripts/fetch-tariffs.mjs` writes `site/data/tariffs.json` (CI step, continue-on-error, keeps last good values). Tracker isn't in `/v1/products/`: update `TRACKER_CODES` when Octopus launches a new Tracker version.
+- Facts and sources: `docs/tariff-facts.md`. The SEO audit now walks nested pages, checks tariff names and checks every referral button has a disclosure.
+
 ## Legal
 
 `/disclaimer/` is plain-English UK consumer wording (England and Wales law): information only, check data yourself, decide whether Agile suits you, appliance safety, referral terms, liability limited "to the fullest extent permitted by law" **with the statutory carve-outs** (death or injury from negligence, fraud; statutory rights unaffected). Never claim total exclusion of liability, because UK law won't enforce it. Suggested to Pras: solicitor review before scaling up promotion.

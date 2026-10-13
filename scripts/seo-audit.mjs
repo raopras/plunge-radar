@@ -10,8 +10,15 @@ const OUT = process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), '..
 const dec = (s) => s.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
 
 export function audit(outDir = OUT) {
-  const pages = ['index.html', ...readdirSync(outDir)
-    .filter((d) => existsSync(join(outDir, d, 'index.html'))).map((d) => `${d}/index.html`)];
+  // Every index.html in the site, at any depth (e.g. octopus-tariffs/agile/index.html).
+  const pages = [];
+  const walk = (dir) => {
+    if (existsSync(join(outDir, dir, 'index.html'))) pages.push(dir ? `${dir}/index.html` : 'index.html');
+    for (const d of readdirSync(join(outDir, dir), { withFileTypes: true })) {
+      if (d.isDirectory() && !['data', 'icons'].includes(d.name)) walk(dir ? `${dir}/${d.name}` : d.name);
+    }
+  };
+  walk('');
   const issues = [];
   const seen = { title: new Map(), description: new Map(), h1: new Map() };
 
@@ -36,6 +43,16 @@ export function audit(outDir = OUT) {
     }
     if (/href="#"/.test(h)) issues.push(`${p}: dead "#" link`);
     if (/Octopus Agile/.test(h)) issues.push(`${p}: uses "Octopus Agile" (the tariff is "Agile Octopus")`);
+    // Exact tariff names, as Octopus Energy writes them.
+    for (const [wrong, right] of [['Octopus Intelligent Go', 'Intelligent Octopus Go'], ['Tracker Octopus', 'Octopus Tracker'], ['Octopus Flexible', 'Flexible Octopus'], ['Octopus Go Intelligent', 'Intelligent Octopus Go']]) {
+      if (h.includes(wrong)) issues.push(`${p}: uses "${wrong}" (should be "${right}")`);
+    }
+    // Every page with a referral button must say so and say we're independent.
+    if (/class="[^"]*ref-link/.test(h)) {
+      if (!/Referral link|referral link/.test(h)) issues.push(`${p}: referral button without a referral disclosure`);
+      if (!/not affiliated with Octopus Energy|independent of Octopus Energy/.test(h)) issues.push(`${p}: referral button without the independence note`);
+      if (/class="[^"]*ref-link[^"]*"[^>]*href="(?!https:\/\/share\.octopus\.energy\/)/.test(h)) issues.push(`${p}: referral button that doesn't point to the referral link`);
+    }
     if (!/tariff/i.test(hero)) issues.push(`${p}: the opening section doesn't say Agile Octopus is a tariff`);
     if (/<img(?![^>]*\balt=)[^>]*>/.test(h)) issues.push(`${p}: image without alt text`);
 

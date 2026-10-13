@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { cp, mkdtemp, readFile, readdir, mkdir } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +38,8 @@ test('backfill fills missing days once, then makes no calls; build writes calcul
   const siteDir = join(tmp, 'site');
   await cp(SITE, siteDir, { recursive: true });
   const dataDir = join(siteDir, 'data');
+  // Start from an empty archive: the real one in site/data grows every day.
+  await rm(join(dataDir, 'archive'), { recursive: true, force: true });
   await mkdir(join(dataDir, 'archive'), { recursive: true });
   const { server, base, calls } = await mockApi();
   try {

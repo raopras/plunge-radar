@@ -13,7 +13,7 @@ export const emailLink = () => `<a href="${encode('mailto:' + CONTACT_EMAIL)}">$
 
 export const DISCLAIMER_SECTIONS = [
   ['About this site', [
-    'Plunge Radar (plungeradar.co.uk) is a free, independent information website run by Pras Rao. It shows half-hourly prices for Agile Octopus, a variable electricity tariff from Octopus Energy, for each region of Great Britain, using Octopus Energy\'s public data.',
+    'Plunge Radar (plungeradar.co.uk) is a free, independent information website run by Pras Rao. It shows half-hourly prices for Agile Octopus, a variable electricity tariff from Octopus Energy, for each region of Great Britain, and compares four Octopus Energy tariffs (Agile Octopus, Intelligent Octopus Go, Octopus Tracker and Flexible Octopus), using Octopus Energy\'s public data.',
     'Plunge Radar is not affiliated with, endorsed by or acting for Octopus Energy. We don\'t supply energy, we can\'t switch you or see your account, and we aren\'t a price comparison service accredited under Ofgem\'s Confidence Code.',
   ]],
   ['Information only, not advice', [
@@ -21,12 +21,13 @@ export const DISCLAIMER_SECTIONS = [
   ]],
   ['Check prices and data yourself', [
     'Prices come from Octopus Energy\'s public data and are shown including any VAT due (there is no VAT on electricity from 1 October 2026 to 31 March 2027), in UK time. They may be delayed, incomplete or wrong, and Octopus Energy may change them. Standing charges and your own usage aren\'t included, so the figures don\'t show what your bill will be.',
-    'The cheapest and dearest times, plunge alerts, regional rankings, history, price cap comparisons, savings estimates and example earnings (such as for an electric car charger) are worked out automatically and are illustrations only. The savings calculator uses a typical household pattern and unit rates only; it leaves out standing charges and can\'t predict future prices. The price cap figure is Ofgem\'s GB average, and the cap in your region may differ slightly. The region checker uses your postcode or MPAN to find a likely region and can be wrong, especially near region boundaries.',
+    'The cheapest and dearest times, plunge alerts, regional rankings, history, tariff comparisons, price cap comparisons, savings estimates and example earnings (such as for an electric car charger) are worked out automatically and are illustrations only. The tariff quiz gives a general suggestion from four answers and doesn\'t know your home, your usage or your circumstances. The savings calculator uses a typical household pattern and unit rates only; it leaves out standing charges and can\'t predict future prices. The price cap figure is Ofgem\'s GB average, and the cap in your region may differ slightly. The region checker uses your postcode or MPAN to find a likely region and can be wrong, especially near region boundaries.',
     'Before you act on anything here, check the prices for your own tariff and region in your Octopus Energy account or app.',
   ]],
-  ['Decide whether Agile suits you', [
+  ['Decide whether a tariff suits you', [
     'Agile Octopus prices change every half-hour and follow the wholesale market. They can be higher than a standard or capped tariff, particularly from 4pm to 7pm, and sometimes for long periods. Past prices don\'t predict future prices, and there is no guarantee of savings.',
     'Agile needs a smart meter that sends half-hourly readings. It tends to suit homes that can move their electricity use to cheaper times. If you can\'t easily change when you use power, rely on electricity for medical equipment or heating, or need predictable bills, a fixed or standard tariff may suit you better.',
+    'Octopus Tracker prices change daily and can be much higher in winter. Intelligent Octopus Go has a higher day rate and an exit fee, and only works with supported cars and chargers. Flexible Octopus prices can rise when Octopus Energy reviews them. Tariff rates, terms and eligibility are set by Octopus Energy and can change at any time.',
     'Before switching, check your current supplier\'s exit fees and Octopus Energy\'s own terms. For free, impartial help, contact Citizens Advice or read Ofgem\'s guidance. The decision to switch, and to use electricity at any particular time, is yours.',
   ]],
   ['Use appliances safely', [

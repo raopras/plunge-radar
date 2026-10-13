@@ -13,6 +13,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { addDays, londonDateString } from './lib.mjs';
 import { disclaimerPage } from './legal.mjs';
+import { buildTariffPages } from './tariff-pages.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -332,6 +333,13 @@ export async function build({
     await writeFile(join(outDir, r.slug, 'index.html'), html);
     pages.push({ loc: url });
   }
+
+  // Octopus Energy tariff guide: hub plus one page per tariff.
+  const tariffUrls = await buildTariffPages({
+    outDir, base, PR, cfg: globalThis.PLUNGE_CONFIG, today,
+    tariffs: await readJSON(join(siteDir, 'data', 'tariffs.json')), dataset, history,
+  });
+  for (const loc of tariffUrls) pages.push({ loc });
 
   // Disclaimer and terms of use.
   await mkdir(join(outDir, 'disclaimer'), { recursive: true });
