@@ -86,6 +86,7 @@
     if (sel) sel.value = k;
     if (remember) store('plunge-region', k);
     if (lastAnswers) showResult(lastAnswers, false);
+    if ($('ev-form')) renderEv();
   }
 
   function setupRegion() {
@@ -176,6 +177,61 @@
     });
   }
 
+
+  // ---- Electric car charging cost --------------------------------------------
+  var evTracked = false;
+  function gbp(n) { return '£' + Math.round(n).toLocaleString('en-GB'); }
+  function num(id, lo, hi, dflt) {
+    var el = $(id);
+    var v = parseFloat(el.value);
+    if (isNaN(v)) v = dflt;
+    v = Math.min(hi, Math.max(lo, v));
+    return v;
+  }
+  function renderEv() {
+    if (!$('ev-form')) return;
+    var d = PAGE.data[region] || PAGE.data.C;
+    var r = d.raw || {};
+    if (r.goNight == null || r.flexUnit == null) { $('ev-out').textContent = 'Rates for this region aren\'t available right now.'; return; }
+    var miles = num('ev-miles', 500, 50000, 7000);
+    var eff = num('ev-eff', 0.15, 0.6, 0.301);
+    var bump = parseFloat($('ev-bump').value) || 0;
+    var home = num('ev-home', 0, 20000, 2700);
+    var night = parseFloat($('ev-night').value) || 0;
+    var car = miles * eff;
+    var goCar = (car * (1 - bump) * r.goNight + car * bump * r.goDay) / 100;
+    var flexCar = car * r.flexUnit / 100;
+    var goHome = (home * night * r.goNight + home * (1 - night) * r.goDay) / 100;
+    var flexHome = home * r.flexUnit / 100;
+    var goTotal = goCar + goHome + 365 * r.goStanding / 100;
+    var flexTotal = flexCar + flexHome + 365 * r.flexStanding / 100;
+    var diff = flexTotal - goTotal;
+    var out = '<p class="calc-big ' + (diff >= 0 ? 'save' : 'cost') + '">' +
+      (diff >= 0 ? 'About ' + gbp(diff) + ' a year less on Intelligent Octopus Go' : 'About ' + gbp(-diff) + ' a year more on Intelligent Octopus Go') + '</p>' +
+      '<p class="calc-detail">Charging your car (' + Math.round(car).toLocaleString('en-GB') + ' kWh): <b>' + gbp(goCar) + '</b> on Intelligent Octopus Go, <b>' + gbp(flexCar) + '</b> on Flexible Octopus.</p>' +
+      (home > 0 ? '<p class="calc-detail">Whole electricity bill, including standing charges: <b>' + gbp(goTotal) + '</b> on Intelligent Octopus Go, <b>' + gbp(flexTotal) + '</b> on Flexible Octopus ' + d.inRegion + '.</p>' : '');
+    $('ev-out').innerHTML = out;
+    all('[data-ev="goCar"]').forEach(function (el) { el.textContent = gbp(7000 * 0.301 * r.goNight / 100); });
+    all('[data-ev="flexCar"]').forEach(function (el) { el.textContent = gbp(7000 * 0.301 * r.flexUnit / 100); });
+    all('tr[data-region]').forEach(function (tr) { tr.classList.toggle('is-current', tr.getAttribute('data-region') === region); });
+    $('ev').dataset.result = diff >= 0 ? 'saves' : 'costs';
+  }
+  function setupEv() {
+    var form = $('ev-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
+    form.addEventListener('input', renderEv);
+    form.addEventListener('change', function (e) {
+      // Show the number actually used when a typed value was out of range.
+      if (e.target.id === 'ev-miles') e.target.value = num('ev-miles', 500, 50000, 7000);
+      if (e.target.id === 'ev-eff') e.target.value = num('ev-eff', 0.15, 0.6, 0.301);
+      if (e.target.id === 'ev-home') e.target.value = num('ev-home', 0, 20000, 2700);
+      renderEv();
+      if (!evTracked) { evTracked = true; track('ev-estimate', { region: region || '', result: $('ev').dataset.result || '' }); }
+    });
+    renderEv();
+  }
+
   // ---- Sticky bar on phones ------------------------------------------------
   function setupStickyBar(enabled) {
     var bar = $('stickybar');
@@ -207,5 +263,6 @@
   setupRegion();
   setupCopy();
   setupQuiz();
+  setupEv();
   setupStickyBar(ok);
 })();

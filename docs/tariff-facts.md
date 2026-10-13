@@ -38,6 +38,13 @@ the API now shows the same value with and without VAT (Tracker days before 1 Oct
 - Variable: "prices will rise or fall every three months with wholesale energy"; "Flexible has no exit fees" (tariffs page). No smart meter needed (Tracker FAQs: stay on a standard tariff such as Flexible until a smart meter is installed).
 - London: 26.60p per kWh, 41.39p a day.
 
+## Electric car charging cost page (/electric-car-charging-cost/)
+- Intelligent Octopus Go page: "Based on the UK average EV consumption of 0.301 kWh/mile (last checked October 2026) and the 7.6 p/kWh Intelligent Octopus Go off-peak rate, driving a typical EV 7,000 miles a year would cost just £160 in fuel ... Assuming you always smart charge at home with Intelligent Octopus Go for less than 6 hours a night." The calculator's defaults are these figures; a test checks £160.13.
+- Intelligent Octopus Go FAQs: "your first 6 hours of smart charging will always be billed at off-peak rates regardless of when it happens"; "any charging we haven't scheduled is charged at your normal home energy rate"; "only works for home charging"; "8% off charging on the go when charging on the Electroverse network"; "Our Octopus engineers can install a charger for you"; "compatible with over 280 cars".
+- Regional day rates, off-peak rate and standing charges: Octopus Energy API (four_rate_ev_electricity_tariffs). Flexible Octopus: API.
+- Typical household 2,700 kWh a year: Ofgem's typical domestic consumption value (also used by the Agile calculator).
+- The share of home use between 11:30pm and 5:30am is the visitor's own guess, labelled as such; it isn't presented as a fact.
+
 ## Price cap (for comparison)
 - Ofgem GB average, single-rate electricity, Direct Debit, 1 Oct to 31 Dec 2026: 26.32p per kWh, 54.83p a day (site/config.js).
 
