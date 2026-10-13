@@ -46,6 +46,10 @@ jobs:
       - name: Fetch prices
         run: node scripts/fetch-prices.mjs
 
+      - name: Fetch rates for the tariff guide (keeps the last good rates on failure)
+        continue-on-error: true
+        run: node scripts/fetch-tariffs.mjs
+
       - name: Build site and region pages
         run: node scripts/build-site.mjs
 
@@ -62,7 +66,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No new prices."
           else
-            git commit -m "Update Agile prices $(date -u +%Y-%m-%dT%H:%MZ)"
+            git commit -m "Update Octopus prices $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

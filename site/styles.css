@@ -301,3 +301,73 @@ svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; 
 .calc-big.cost { color: var(--peak); }
 .calc-detail { margin: 6px 0 0; font-size: 0.92rem; }
 .fine-calc { margin: 0; font-size: 0.8rem; color: var(--muted); max-width: 75ch; }
+
+/* ---- Octopus tariff guide (/octopus-tariffs/) ---- */
+.crumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 0.82rem; color: var(--hero-muted); }
+.crumbs li + li::before { content: "›"; margin-right: 4px; color: var(--hero-muted); }
+.crumbs a { color: var(--hero-ink); text-decoration-color: var(--hero-line); text-underline-offset: 3px; }
+.tariff-page .hero h1 { max-width: 22ch; }
+.tariff-page .hero-inner { padding-bottom: 22px; }
+.t-region { padding: 14px 16px; display: grid; gap: 6px; }
+.t-region label { font-weight: 700; font-size: 0.9rem; }
+.glance { padding: 16px; display: grid; gap: 10px; }
+.glance dd { font-variant-numeric: tabular-nums; }
+.glance dd [data-v], .tariffs-table td [data-v] { font-family: var(--font-data); font-weight: 700; white-space: nowrap; }
+.prose { display: grid; gap: 8px; }
+.prose p { margin: 0; max-width: 65ch; color: var(--muted); }
+.fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.fit .card { padding: 16px; display: grid; gap: 8px; align-content: start; }
+.fit ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: 0.93rem; }
+.fit-yes { border-top: 4px solid var(--plunge); }
+.fit-no { border-top: 4px solid var(--peak); }
+.copylink { border-top: 1px solid var(--hero-line); padding-top: 14px; display: grid; gap: 8px; }
+.copylink-h { margin: 0; font-weight: 700; color: var(--hero-ink); }
+.copylink-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.copylink-row input { flex: 1 1 220px; min-width: 0; font: 500 0.92rem var(--font-data); }
+.others { display: grid; gap: 10px; }
+.tariff-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.tariff-cards a { display: grid; gap: 4px; height: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; }
+.tariff-cards a:hover { border-color: var(--accent); }
+.tariff-cards b { font: 800 1rem var(--font-display); }
+.tariff-cards span { color: var(--muted); font-size: 0.88rem; }
+.foot-nav a { color: var(--accent); font-weight: 600; }
+.tariffs-table td { vertical-align: top; }
+.tariffs-table th[scope="row"] { font: 700 0.92rem var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink); white-space: nowrap; }
+.tariffs-table td.u { min-width: 15em; }
+
+.quiz { padding: 18px; display: grid; gap: 14px; border: 1.5px solid var(--cta); }
+.quiz form { display: grid; gap: 14px; }
+.quiz fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+.quiz legend { font-weight: 700; padding: 0; margin-bottom: 8px; }
+.q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-opts label { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; min-height: 44px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--bg); cursor: pointer; font-size: 0.93rem; }
+.q-opts label:has(input:checked) { border-color: var(--accent); background: var(--cheap-wash); font-weight: 700; }
+.q-opts input { accent-color: var(--accent); margin: 0; }
+.quiz-go { justify-self: start; }
+.quiz-result { background: var(--cta-wash); border-radius: 12px; padding: 16px; display: grid; gap: 8px; }
+.quiz-result p { margin: 0; }
+.qr-k { font: 700 0.75rem var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.qr-name { font: 900 1.5rem/1.1 var(--font-display); }
+.qr-why { max-width: 65ch; }
+.qr-note { font-size: 0.9rem; color: var(--muted); }
+.qr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 4px; }
+.qr-more { color: var(--accent); font-weight: 700; }
+.fine-quiz { font-size: 0.8rem; color: var(--muted); }
+.promo-more { margin: 6px 0 0; font-size: 0.9rem; }
+.promo-more a { color: var(--accent); font-weight: 700; }
+.copylink-row input { text-transform: none; letter-spacing: 0; }
+.copylink .btn-secondary { background: var(--hero-ink); color: var(--hero-bg); }
+
+/* Phones: the tariff table becomes one card per tariff. */
+@media (max-width: 640px) {
+  .tariffs-table thead { display: none; }
+  .tariffs-table table, .tariffs-table tbody, .tariffs-table tr, .tariffs-table th, .tariffs-table td { display: block; width: auto; }
+  .tariffs-table tr { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
+  .tariffs-table th[scope="row"] { border: 0; padding: 0 0 6px; font-size: 1rem; }
+  .tariffs-table td { border-top: 1px solid var(--grid); padding: 6px 0; display: grid; grid-template-columns: 8.5em 1fr; gap: 8px; text-align: left; }
+  .tariffs-table td::before { content: attr(data-label); color: var(--muted); font-size: 0.82rem; }
+  .tariffs-table td.u { min-width: 0; }
+  .tariffs-table td [data-v] { white-space: normal; }
+  .compare.tariffs-table th:nth-child(5), .compare.tariffs-table td:nth-child(5) { display: grid; }
+  .tariffs-table td.p::before { font-family: var(--font-body); }
+}
