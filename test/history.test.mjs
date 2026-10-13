@@ -36,7 +36,8 @@ function mockApi() {
 test('backfill fills missing days once, then makes no calls; build writes calculator history', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'plunge-hist-'));
   const siteDir = join(tmp, 'site');
-  await cp(SITE, siteDir, { recursive: true });
+  // Never use the live data in site/data: it changes every day, so tests would drift.
+  await cp(SITE, siteDir, { recursive: true, filter: (src) => !/[\\/]data([\\/]|$)/.test(src.slice(SITE.length)) });
   const dataDir = join(siteDir, 'data');
   // Start from an empty archive: the real one in site/data grows every day.
   await rm(join(dataDir, 'archive'), { recursive: true, force: true });

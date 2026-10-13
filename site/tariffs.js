@@ -107,13 +107,13 @@
     agile: {
       name: 'Agile Octopus',
       why: function (d) {
-        return 'You can move a lot of your use to cheap times, which is what Agile rewards. Today Agile averages ' + d.agileToday + ' per kWh ' + d.inRegion + ', from ' + d.agileLow + ' to ' + d.agileHigh + '. The 4pm to 7pm peak can cost more than a standard tariff, so plan around it.';
+        return 'You can move a lot of your use to cheap times, which is what Agile rewards. ' + (d.agileWhen ? 'O' + d.agileWhen.slice(1) + ', ' : '') + 'Agile averaged ' + d.agileToday + ' per kWh ' + d.inRegion + ', from ' + d.agileLow + ' to ' + d.agileHigh + '. The 4pm to 7pm peak can cost more than a standard tariff, so plan around it.';
       },
     },
     tracker: {
       name: 'Octopus Tracker',
       why: function (d) {
-        return 'You\'re happy with a changing price and can use less on pricey days, without planning around half-hours. Tracker sets one price a day from the wholesale market: ' + d.trackerToday + ' per kWh today ' + d.inRegion + ', ' + d.trackerAvg30 + ' on average over 30 days. Octopus Energy says prices typically increase, likely double, in colder months.';
+        return 'You\'re happy with a changing price and can use less on pricey days, without planning around half-hours. Tracker sets one price a day from the wholesale market: ' + d.trackerToday + ' per kWh ' + d.trackerWhen + ' ' + d.inRegion + ', ' + d.trackerAvg30 + ' on average over 30 days. Octopus Energy says prices typically increase, likely double, in colder months.';
       },
     },
     flexible: {

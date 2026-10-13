@@ -226,8 +226,10 @@
       $('day-' + w).addEventListener('click', function () { state.which = w; render(); });
     });
 
-    $('updated').textContent = 'Last updated ' + fmtStamp.format(new Date(data.generatedAt)) + '.';
-    $('live-text').textContent = hasTomorrow ? 'Tomorrow’s prices are in' : 'Updated ' + fmtStamp.format(new Date(data.generatedAt));
+    $('updated').textContent = data.liveAt
+      ? 'Prices for this area loaded live from Octopus Energy at ' + fmtStamp.format(new Date(data.liveAt)) + '.'
+      : 'Last updated ' + fmtStamp.format(new Date(data.generatedAt)) + '.';
+    $('live-text').textContent = hasTomorrow ? 'Tomorrow’s prices are in' : 'Updated ' + fmtStamp.format(new Date(data.liveAt || data.generatedAt));
 
     var saved = store('plunge-region');
     if (PAGE.region && data.regions[PAGE.region]) setRegion(PAGE.region, true);
@@ -242,7 +244,7 @@
     var day = data.days[dates[state.which]];
     ['today', 'tomorrow'].forEach(function (w) { $('day-' + w).setAttribute('aria-pressed', String(w === state.which)); });
 
-    var ageHours = (Date.now() - Date.parse(data.generatedAt)) / 36e5;
+    var ageHours = (Date.now() - Date.parse(data.liveAt || data.generatedAt)) / 36e5;
     if (!day) {
       setStatus(state.which === 'tomorrow'
         ? "Tomorrow's prices aren't out yet. Octopus Energy publishes them between 4pm and 8pm, usually nearer 4pm; this page updates shortly after."
@@ -611,8 +613,18 @@
   }
 
   if (window.PLUNGE_SAMPLE) { init(window.PLUNGE_SAMPLE); return; }
+  // The region this page will show first, so missing prices can be fetched for it.
+  function firstRegion(data) {
+    var saved = store('plunge-region');
+    if (PAGE.region && data.regions[PAGE.region]) return PAGE.region;
+    if (data.regions[saved]) return saved;
+    return data.regions[CFG.defaultRegion] ? CFG.defaultRegion : 'C';
+  }
+
   fetch(BASE + 'data/latest.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    // If the scheduled update hasn't run, fill the gap straight from Octopus Energy.
+    .then(function (data) { return window.PlungeLive ? window.PlungeLive.topUp(data, firstRegion(data)) : data; })
     .then(init)
     .catch(function () {
       setStatus("Prices aren't available yet. They're added automatically every afternoon; please check back soon.");

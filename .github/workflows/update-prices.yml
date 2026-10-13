@@ -6,8 +6,12 @@ name: Update Agile prices
 # exit in seconds without calling the API. The 00:07 run is a daily heartbeat.
 on:
   schedule:
-    - cron: "7 15-22 * * *"
-    - cron: "7 0 * * *"
+    # GitHub runs scheduled jobs late or skips them when it's busy, so we ask often:
+    # every 15 minutes from 15:00 to 22:45 UTC (Octopus Energy publishes between 4pm
+    # and 8pm UK time), and six times overnight and through the day. Runs with nothing
+    # new exit in seconds. The pages also fetch missing prices live (site/live.js).
+    - cron: "4,19,34,49 15-22 * * *"
+    - cron: "7 23,0,3,6,9,12 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
@@ -17,6 +21,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: update-prices
@@ -36,7 +41,10 @@ jobs:
         with:
           node-version: 20
 
+      # Tests guard code changes. Scheduled runs don't change code, so they skip the
+      # tests: a test must never stop fresh prices reaching the site.
       - name: Run tests
+        if: github.event_name != 'schedule'
         run: npm test
 
       - name: Fill gaps in price history (for the savings calculator)
@@ -67,6 +75,8 @@ jobs:
             echo "No new prices."
           else
             git commit -m "Update Octopus prices $(date -u +%Y-%m-%dT%H:%MZ)"
+            # Someone may have pushed code while this ran: replay our data commit on top.
+            git pull --rebase --quiet origin main
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
@@ -86,3 +96,25 @@ jobs:
         id: deploy
         if: steps.commit.outputs.changed == 'true' || github.event_name != 'schedule'
         uses: actions/deploy-pages@v4
+
+      # Alerts: a failed run opens (or updates) a GitHub issue, which GitHub emails to
+      # the repo owner. The next successful run closes it.
+      - name: Raise an alert
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Price update failing"
+          NUM=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          BODY="The price update failed at $(date -u +%Y-%m-%dT%H:%MZ). Details: $RUN_URL. Visitors still see prices: the pages fetch missing prices from Octopus Energy directly."
+          if [ -n "$NUM" ]; then gh issue comment "$NUM" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY"; fi
+
+      - name: Close the alert once fixed
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --search 'in:title "Price update failing"' --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Fixed: the price update ran successfully at $(date -u +%Y-%m-%dT%H:%MZ)."
+          done

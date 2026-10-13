@@ -140,12 +140,27 @@ export async function run({
   await step('tracker', async () => {
     let code = null;
     let detail = null;
+    let sawClosed = false;
     for (const c of trackerCodes) {
       try {
         const d = await getJSON(`${base}/products/${c}/`, opts);
         if (!d.available_to || new Date(d.available_to) > now) { code = c; detail = d; break; }
+        sawClosed = true;
         log(`  Tracker ${c} closed on ${d.available_to}; trying the next code.`);
       } catch (err) { log(`  Tracker ${c}: ${err.message}`); }
+    }
+    // All known codes closed: Octopus has launched a new Tracker version. Its codes follow
+    // SILVER-YY-MM-DD (launch date), so look back day by day for the newest open one.
+    if (!code && sawClosed) {
+      for (let i = 0; i <= 200 && !code; i++) {
+        const d = addDays(londonDateString(now), -i);
+        const c = `SILVER-${d.slice(2, 4)}-${d.slice(5, 7)}-${d.slice(8, 10)}`;
+        if (trackerCodes.includes(c)) continue;
+        try {
+          const p = await getJSON(`${base}/products/${c}/`, { log: () => {}, attempts: 1 });
+          if (!p.available_to || new Date(p.available_to) > now) { code = c; detail = p; log(`  Found the new Tracker product ${c}: add it to TRACKER_CODES.`); }
+        } catch { /* not a product */ }
+      }
     }
     if (!code) throw new Error('no open Tracker product: add the new code to TRACKER_CODES in scripts/fetch-tariffs.mjs');
     const from = londonMidnightUTC(addDays(londonDateString(now), -(TRACKER_DAYS - 2)));

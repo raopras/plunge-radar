@@ -277,7 +277,7 @@ export async function build({
 
     let html = template;
     // Assets sit one folder up.
-    html = html.replace(/(href|src)="(styles\.css|manifest\.webmanifest|config\.js|regions\.js|app\.js|icons\/[^"]+)"/g, '$1="../$2"');
+    html = html.replace(/(href|src)="(styles\.css|manifest\.webmanifest|config\.js|regions\.js|live\.js|app\.js|icons\/[^"]+)"/g, '$1="../$2"');
 
     // Google shows about 60 characters of a title and 155 of a description.
     const place = r.inName.replace(/^the /, '');

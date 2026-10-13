@@ -1,0 +1,55 @@
+name: Health check
+
+# Checks the live site as a visitor sees it: pages load, referral links are present,
+# and today's and tomorrow's prices and the tariff rates are fresh. A problem opens a
+# GitHub issue (emailed to the repo owner); the next clean check closes it.
+on:
+  schedule:
+    - cron: "41 1,7,13,18,21 * * *"
+  workflow_run:
+    workflows: ["Update Agile prices"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: health-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check the live site
+        id: hc
+        run: |
+          set -o pipefail
+          node scripts/health-check.mjs 2>&1 | tee report.txt
+      - name: Raise an alert
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Site health check failing"
+          NUM=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          BODY="$(cat report.txt 2>/dev/null)
+
+          Run: $RUN_URL"
+          if [ -n "$NUM" ]; then gh issue comment "$NUM" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY"; fi
+      - name: Close the alert once fixed
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --search 'in:title "Site health check failing"' --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Fixed: the health check passed at $(date -u +%Y-%m-%dT%H:%MZ)."
+          done

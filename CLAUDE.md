@@ -49,6 +49,19 @@ GitHub Action (hourly 15:07–22:07 UTC + 00:07 UTC, on push, or by hand)
 - The build writes `data/history/<region>.json` (days since `priceCap.from`) for the calculator, which replays them against a typical household profile and compares unit costs only.
 - **VAT:** no VAT on electricity from 1 Oct 2026 to 31 Mar 2027. Copy says "including any VAT due". Revisit wording in April 2027.
 
+## Operations and recovery (added 13 Oct 2026)
+
+What failed on 12–13 Oct: a test read the live archive in `site/data`, broke as the archive grew, and because tests ran before every scheduled price update, no prices were saved for ~12 hours. Separately, GitHub skipped 7 of 9 scheduled runs on 12 Oct (scheduled runs are best-effort). Nobody was alerted. Safeguards now in place:
+
+- **Tests are hermetic:** every test copies `site/` *without* `site/data` and uses fixed dates. Never let a test read live data or today's date.
+- **Scheduled runs skip the tests** (code doesn't change on a schedule); pushes and manual runs still run them. Build + SEO audit still gate every deploy.
+- **Many schedule slots:** every 15 min 15:00–22:45 UTC plus 6 runs through the day; no-op runs exit in seconds.
+- **Self-healing pages:** `site/live.js` fetches today's/tomorrow's Agile prices for the visitor's region straight from the Octopus API (CORS allowed) when `latest.json` is missing them. Its maths mirrors `scripts/lib.mjs`; `test/live.test.mjs` checks they agree, including clock-change days.
+- **Alerts:** a failed price update opens/updates a GitHub issue "Price update failing" (emailed to Pras); the next success closes it. `.github/workflows/health-check.yml` checks the live site after every update and 5 times a day (`scripts/health-check.mjs`: pages load, referral links present, today's/tomorrow's prices, tariff data < 36 h, Tracker rates current) and raises "Site health check failing".
+- **Tracker code changes:** `fetch-tariffs.mjs` finds a new `SILVER-YY-MM-DD` product by itself when the known code closes; add the new code to `TRACKER_CODES` when the log says so.
+- **Pages never say "today" for built data:** tariff pages name the date of each price, because a rebuild can slip.
+- The bot's data commit does `git pull --rebase` before pushing, so a code push during a run doesn't fail it.
+
 ## Working on it
 
 - `npm test` (node:test; includes a mock-API end-to-end run, build checks and the SEO audit), `npm run build`, `npm run audit`, `npm run serve`.

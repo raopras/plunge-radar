@@ -52,7 +52,8 @@ test('build writes a landing page per region with real numbers, links and struct
   const tmp = await mkdtemp(join(tmpdir(), 'plunge-build-'));
   const siteDir = join(tmp, 'site');
   const outDir = join(tmp, 'out');
-  await cp(SITE, siteDir, { recursive: true });
+  // Never use the live data in site/data: it changes every day, so tests would drift.
+  await cp(SITE, siteDir, { recursive: true, filter: (src) => !/[\\/]data([\\/]|$)/.test(src.slice(SITE.length)) });
   const { server, base } = await mockApi();
   const now = new Date('2026-10-13T17:00:00Z');
   try {

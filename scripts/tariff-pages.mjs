@@ -39,7 +39,7 @@ export function tariffSummary({ tariffs, dataset, history, today, PR }) {
     const known = prices.filter((x) => x !== null);
     const agileDays = history.map((h) => (h.regions[k] || []).filter((x) => x !== null)).filter((x) => x.length).map(mean);
     const rates = (t.tracker?.rates || []).filter((r) => r.d <= today);
-    const trToday = rates.find((r) => r.d === today);
+    const trToday = rates.find((r) => r.d === today) ?? rates[0];
     const trTomorrow = (t.tracker?.rates || []).find((r) => r.d > today);
     out[k] = {
       region: PR.REGIONS[k].name,
@@ -52,7 +52,11 @@ export function tariffSummary({ tariffs, dataset, history, today, PR }) {
       goNight: p1(t.go?.night),
       goDay: p1(t.go?.day),
       goStanding: p1(t.go?.standing),
-      trackerToday: p1(trToday?.p ?? rates[0]?.p),
+      trackerToday: p1(trToday?.p),
+      // Pages are rebuilt on a schedule that can slip, so say which day a price is for
+      // rather than "today".
+      trackerWhen: trToday ? `on ${dayLabel(trToday.d)}` : '',
+      agileWhen: agileDay ? `on ${dayLabel(agileDay)}` : '',
       trackerTomorrow: trTomorrow ? p1(trTomorrow.p) : '',
       trackerAvg30: p1(mean(rates.slice(0, 30).map((r) => r.p))),
       trackerLow30: p1(rates.length ? Math.min(...rates.slice(0, 30).map((r) => r.p)) : null),
@@ -70,7 +74,7 @@ export function tariffSummary({ tariffs, dataset, history, today, PR }) {
     regions: out,
     agileDate: agileDay ? dayLabel(agileDay) : '',
     agileDays: history.length,
-    trackerDate: today ? dayLabel(today) : '',
+    trackerDate: (() => { const r = (tariffs?.regions?.C?.tracker?.rates || []).filter((x) => x.d <= today); const t = r.find((x) => x.d === today) ?? r[0]; return t ? dayLabel(t.d) : ''; })(),
   };
 }
 
@@ -231,7 +235,7 @@ export const PAGES = [
     lede: 'Agile Octopus is an electricity tariff from Octopus Energy where the price changes every half-hour, following the wholesale market. It rewards homes that can use electricity at cheap times.',
     glance: (S, k, cap) => [
       ['How the price works', 'A new price for every half-hour, published the day before'],
-      ['Today in your region', `Average ${v(S, k, 'agileToday')}, from ${v(S, k, 'agileLow')} to ${v(S, k, 'agileHigh')} per kWh`],
+      [`In your region on ${S.agileDate}`, `Average ${v(S, k, 'agileToday')}, from ${v(S, k, 'agileLow')} to ${v(S, k, 'agileHigh')} per kWh`],
       [`Average over the last ${S.agileDays || 30} days`, `${v(S, k, 'agileAvg30')} per kWh${cap ? ` (price cap: ${p1(cap.unitRate)})` : ''}`],
       ['Standing charge', `${v(S, k, 'agileStanding')} a day`],
       ['Price limit', 'Never more than 100p per kWh'],
@@ -251,7 +255,7 @@ export const PAGES = [
       ['Can Agile Octopus cost more than a standard tariff?', 'Yes. Octopus Energy says Agile prices can spike up to 100p per kWh at any time, are usually most expensive between 4pm and 7pm, and that when wholesale prices are high you\'re likely to save more on a standard variable or fixed tariff through the winter. It suits homes that can shift a lot of their use away from the peaks.'],
       ['When are Agile prices published?', 'Octopus Energy publishes the next day\'s half-hourly prices between 4pm and 8pm, usually nearer 4pm. Plunge Radar shows them for your region as soon as they\'re out.'],
       ['What is the most Agile Octopus can charge?', 'Octopus Energy caps Agile prices at 100p per kWh, including any VAT due.'],
-      [`What do Agile prices look like ${S.regions[k].inRegion}?`, `Today Agile averages ${S.regions[k].agileToday} per kWh ${S.regions[k].inRegion}, and ${S.regions[k].agileAvg30} on average over the last ${S.agileDays || 30} days. See every half-hour on the Plunge Radar home page.`],
+      [`What do Agile prices look like ${S.regions[k].inRegion}?`, `On ${S.agileDate} Agile averaged ${S.regions[k].agileToday} per kWh ${S.regions[k].inRegion}, and ${S.regions[k].agileAvg30} on average over the last ${S.agileDays || 30} days. See every half-hour on the Plunge Radar home page.`],
     ],
   },
   {
@@ -293,7 +297,7 @@ export const PAGES = [
     lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, set from an independently published wholesale market price. You don\'t have to plan around half-hours, but it pays to use less on pricey days.',
     glance: (S, k, cap) => [
       ['How the price works', 'A new price every day, from a published formula'],
-      [`Today (${S.trackerDate})`, `${v(S, k, 'trackerToday')} per kWh`],
+      [`Price for ${S.trackerDate}`, `${v(S, k, 'trackerToday')} per kWh`],
       ['Last 30 days', `Average ${v(S, k, 'trackerAvg30')}, from ${v(S, k, 'trackerLow30')} to ${v(S, k, 'trackerHigh30')}${cap ? ` (price cap: ${p1(cap.unitRate)})` : ''}`],
       ['Standing charge', `${v(S, k, 'trackerStanding')} a day`],
       ['Price limit', 'Never more than 100p per kWh'],
@@ -312,7 +316,7 @@ export const PAGES = [
       ['How is the Octopus Tracker price set?', 'Each day\'s price comes from the previous day\'s wholesale electricity price, multiplied by a regional factor, plus a fixed amount for non-wholesale costs. Octopus Energy publishes the formula for each region in its Tracker FAQs.'],
       ['Can Octopus Tracker cost more than the price cap?', 'Yes. Octopus Energy says prices typically increase, likely double, in colder months, and the daily price is capped at 100p per kWh, a lot higher than the price cap. Octopus Energy says that if you can\'t afford prices to go that high, you\'re probably better off on a protected tariff such as Flexible Octopus.'],
       ['Is there an exit fee?', 'No. You can leave Octopus Tracker at any time without a fee. If you leave within the 12-month term, you can\'t rejoin for 9 months.'],
-      [`What is the Tracker price ${S.regions[k].inRegion} today?`, `Today it is ${S.regions[k].trackerToday} per kWh ${S.regions[k].inRegion}, with an average of ${S.regions[k].trackerAvg30} over the last 30 days.`],
+      [`What is the Octopus Tracker price ${S.regions[k].inRegion}?`, `On ${S.trackerDate} it was ${S.regions[k].trackerToday} per kWh ${S.regions[k].inRegion}, with an average of ${S.regions[k].trackerAvg30} over the last 30 days.`],
     ],
   },
   {
@@ -424,9 +428,9 @@ function hubPage({ S, k, base, cap, ref, PR }) {
         <div class="q-opts">${options.map(([val, label]) => `<label><input type="radio" name="${name}" value="${val}"> <span>${esc(label)}</span></label>`).join('')}</div>
       </fieldset>`;
   const rows = [
-    ['agile', 'Changes every half-hour', `Today ${v(S, k, 'agileToday')} average; ${v(S, k, 'agileAvg30')} over ${S.agileDays || 30} days`, v(S, k, 'agileStanding'), 'None', 'Smart meter'],
+    ['agile', 'Changes every half-hour', `${esc(S.agileDate)}: ${v(S, k, 'agileToday')} average; ${v(S, k, 'agileAvg30')} over ${S.agileDays || 30} days`, v(S, k, 'agileStanding'), 'None', 'Smart meter'],
     ['intelligent-octopus-go', 'Two fixed rates for 12 months', `${v(S, k, 'goNight')} from 11:30pm to 5:30am; ${v(S, k, 'goDay')} other times`, v(S, k, 'goStanding'), '£50', 'Electric car, supported car or charger, smart meter'],
-    ['tracker', 'Changes every day', `Today ${v(S, k, 'trackerToday')}; ${v(S, k, 'trackerAvg30')} over 30 days`, v(S, k, 'trackerStanding'), 'None', 'Smart meter'],
+    ['tracker', 'Changes every day', `${esc(S.trackerDate)}: ${v(S, k, 'trackerToday')}; ${v(S, k, 'trackerAvg30')} over 30 days`, v(S, k, 'trackerStanding'), 'None', 'Smart meter'],
     ['flexible', 'Changes every 3 months', v(S, k, 'flexUnit'), v(S, k, 'flexStanding'), 'None', 'No smart meter needed'],
   ].map(([slug, how, unit, sc, fee, need]) => {
     const p = PAGES.find((x) => x.slug === slug);

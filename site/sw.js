@@ -1,7 +1,7 @@
 // Offline support: always try the network first so prices are fresh,
 // and fall back to the last copy when there's no connection.
-const CACHE = 'plunge-radar-v15';
-const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'regions.js', 'manifest.webmanifest', 'icons/icon.svg', 'data/latest.json'];
+const CACHE = 'plunge-radar-v16';
+const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'regions.js', 'live.js', 'manifest.webmanifest', 'icons/icon.svg', 'data/latest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.allSettled(SHELL.map((u) => c.add(u)))).then(() => self.skipWaiting()));

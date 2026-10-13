@@ -87,6 +87,16 @@ test('fetches all four tariffs, skips closed Tracker codes, then stays quiet whe
   } finally { server.close(); }
 });
 
+test('finds a new Tracker version by itself when the known code has closed', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'plunge-tariffs-'));
+  const { server, base } = await mockApi();
+  try {
+    const r = await run({ base, outDir: tmp, now: NOW, trackerCodes: ['SILVER-OLD'], log: () => {} });
+    assert.deepEqual(r.failures, []);
+    assert.equal(r.data.products.tracker.code, 'SILVER-26-04-01');
+  } finally { server.close(); }
+});
+
 test('keeps the last good Tracker rates when the API fails', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'plunge-tariffs-'));
   const old = { generatedAt: '2026-10-10T16:00:00Z', products: { tracker: { code: 'SILVER-26-04-01' } }, regions: { C: { tracker: { standing: 40, rates: [{ d: '2026-10-10', p: 22 }] } } } };
@@ -106,7 +116,8 @@ test('builds the tariff hub and four tariff pages with referral links, disclosur
   const tmp = await mkdtemp(join(tmpdir(), 'plunge-tpages-'));
   const siteDir = join(tmp, 'site');
   const outDir = join(tmp, 'out');
-  await cp(SITE, siteDir, { recursive: true });
+  // Never use the live data in site/data: it changes every day, so tests would drift.
+  await cp(SITE, siteDir, { recursive: true, filter: (src) => !/[\\/]data([\\/]|$)/.test(src.slice(SITE.length)) });
   const { server, base } = await mockApi();
   try { await run({ base, outDir: join(siteDir, 'data'), now: NOW, force: true, log: () => {} }); } finally { server.close(); }
   const res = await build({ siteDir, outDir, now: NOW, siteUrl: 'https://plungeradar.co.uk', log: () => {} });
