@@ -14,6 +14,8 @@ Honest reality check given to Pras: the main search audience (people checking Ag
 - **No paid advertising** of the referral link (Octopus suspends links promoted by paid ads: 3 months, then 6). Growth is organic only: SEO, sharing, social.
 - **Disclose the referral link** beside every switch button, and say the site is independent of Octopus Energy. No Octopus logo or branding.
 - **Naming:** "Agile Octopus" = the tariff, "Octopus Energy" = the company. Never "Octopus Agile". Explain early that Agile Octopus is a tariff. The SEO audit enforces this.
+- **Ground everything in Octopus Energy's official sources (Pras, 13 Oct 2026).** Every price, claim, promise and requirement must come from octopus.energy pages or the Octopus Energy API, read word for word in a browser (never a summariser), and be recorded with its quote in `docs/tariff-facts.md`. If it isn't on an official page, it doesn't go on the site.
+- **Referral link:** keep using the personal link everywhere it fits until Octopus Energy flags it (Pras's decision, 13 Oct 2026; Octopus says the link is "meant for people you know").
 - **Don't over-promise.** Switching takes time and needs a smart meter; Agile can cost more than a standard tariff at 4–7pm. Copy must stay honest (Pras rejected "Get paid like this on Agile").
 - **Thorough SEO audit at publish time**, not afterwards (Pras's standing preference). `scripts/seo-audit.mjs` runs in CI and blocks the deploy on failure; extend it rather than bypass it.
 - **Copy style:** UK English, plain words, active voice. Pras likes working on copy together: offer options with a recommendation, then apply his choice exactly.
