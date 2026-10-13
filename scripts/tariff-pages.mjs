@@ -552,7 +552,7 @@ function evPage({ S, k, base, cap, ref, PR }) {
       <div class="field">
         <label for="ev-eff">Your car's kWh per mile</label>
         <input id="ev-eff" type="number" inputmode="decimal" min="0.15" max="0.6" step="0.01" value="${kwhPerMile}">
-        <p class="hint">Your car's app or handbook shows this. 0.301 is the UK average Octopus Energy uses.</p>
+        <p class="hint">Use your own car's figure if you know it. 0.301 is the UK average Octopus Energy uses.</p>
       </div>
       <div class="field">
         <label for="ev-bump">Charging at the day rate</label>
@@ -565,8 +565,8 @@ function evPage({ S, k, base, cap, ref, PR }) {
       </div>
       <div class="field">
         <label for="ev-home">Rest of your home, kWh a year</label>
-        <input id="ev-home" type="number" inputmode="numeric" min="0" max="20000" step="100" value="2700">
-        <p class="hint">Not counting the car. Ofgem's typical household uses 2,700 kWh. Enter 0 to compare the car only.</p>
+        <input id="ev-home" type="number" inputmode="numeric" min="0" max="20000" step="100" value="2500">
+        <p class="hint">Not counting the car. Ofgem's typical household figure is 2,500 kWh a year. Enter 0 to compare the car only.</p>
       </div>
       <div class="field">
         <label for="ev-night">How much of that is between 11:30pm and 5:30am?</label>

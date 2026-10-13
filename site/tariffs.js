@@ -196,7 +196,7 @@
     var miles = num('ev-miles', 500, 50000, 7000);
     var eff = num('ev-eff', 0.15, 0.6, 0.301);
     var bump = parseFloat($('ev-bump').value) || 0;
-    var home = num('ev-home', 0, 20000, 2700);
+    var home = num('ev-home', 0, 20000, 2500);
     var night = parseFloat($('ev-night').value) || 0;
     var car = miles * eff;
     var goCar = (car * (1 - bump) * r.goNight + car * bump * r.goDay) / 100;
@@ -225,7 +225,7 @@
       // Show the number actually used when a typed value was out of range.
       if (e.target.id === 'ev-miles') e.target.value = num('ev-miles', 500, 50000, 7000);
       if (e.target.id === 'ev-eff') e.target.value = num('ev-eff', 0.15, 0.6, 0.301);
-      if (e.target.id === 'ev-home') e.target.value = num('ev-home', 0, 20000, 2700);
+      if (e.target.id === 'ev-home') e.target.value = num('ev-home', 0, 20000, 2500);
       renderEv();
       if (!evTracked) { evTracked = true; track('ev-estimate', { region: region || '', result: $('ev').dataset.result || '' }); }
     });
