@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REGIONS } from '../scripts/lib.mjs';
 import { run, pickFlexible, pickIntelligentGo, isFresh } from '../scripts/fetch-tariffs.mjs';
+import { evCost } from '../scripts/tariff-pages.mjs';
 import { build } from '../scripts/build-site.mjs';
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
@@ -54,6 +55,10 @@ function mockApi({ trackerFails = false } = {}) {
   });
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve({ server, base: `http://127.0.0.1:${server.address().port}/v1`, calls: () => count })));
 }
+
+test("charging cost matches Octopus Energy's own example (7,000 miles, 0.301 kWh/mile, 7.6p = £160.13)", () => {
+  assert.equal(Math.round(evCost(7000, 0.301, 7.6) * 100) / 100, 160.13);
+});
 
 test('picks the right Flexible and Intelligent Octopus Go products', () => {
   assert.equal(pickFlexible(PRODUCTS, NOW).code, 'VAR-22-11-01');
@@ -122,6 +127,11 @@ test('builds the tariff hub and four tariff pages with referral links, disclosur
   assert.ok(hub.includes('<span data-v="goNight">7.6p</span>'), 'London off-peak rate written into the page');
   const go = await readFile(join(outDir, 'octopus-tariffs', 'intelligent-octopus-go', 'index.html'), 'utf8');
   assert.ok(go.includes('35.9p') && go.includes('£50 exit fee'));
+  const ev = await readFile(join(outDir, 'electric-car-charging-cost', 'index.html'), 'utf8');
+  assert.ok(res.pages.includes('https://plungeradar.co.uk/electric-car-charging-cost/'));
+  assert.ok(ev.includes('id="ev-form"') && ev.includes('data-cta="hero"') && ev.includes('id="ref-copy"'));
+  assert.ok(ev.includes('£160'), "Octopus Energy's own 7,000-mile example at 7.6p");
+  assert.ok(ev.includes('Referral link') && ev.includes('not affiliated with Octopus Energy'));
   const home = await readFile(join(outDir, 'index.html'), 'utf8');
   assert.ok(home.includes('href="/octopus-tariffs/"'), 'home page links to the tariff guide');
 });

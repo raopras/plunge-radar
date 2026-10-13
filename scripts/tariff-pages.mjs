@@ -19,6 +19,9 @@ const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 const dayLabel = (d) => fmtShort.format(new Date(`${d}T12:00:00Z`));
 
 export const SECTION = 'octopus-tariffs';
+export const EV_PATH = 'electric-car-charging-cost/';
+// Octopus Energy's own figures (Intelligent Octopus Go page, checked 13 Oct 2026).
+export const EV_DEFAULTS = { miles: 7000, kwhPerMile: 0.301 };
 const DEFAULT_REGION = 'C';
 
 // ---- Numbers ---------------------------------------------------------------
@@ -57,6 +60,10 @@ export function tariffSummary({ tariffs, dataset, history, today, PR }) {
       trackerStanding: p1(t.tracker?.standing),
       flexUnit: p1(t.flexible?.unit),
       flexStanding: p1(t.flexible?.standing),
+      raw: {
+        goNight: t.go?.night ?? null, goDay: t.go?.day ?? null, goStanding: t.go?.standing ?? null,
+        flexUnit: t.flexible?.unit ?? null, flexStanding: t.flexible?.standing ?? null,
+      },
     };
   }
   return {
@@ -183,7 +190,7 @@ function otherTariffs(currentSlug) {
 function footer(cap) {
   return `
   <footer class="small">
-    <nav class="foot-nav" aria-label="More from Plunge Radar"><a href="/">Today's Agile prices</a> · <a href="/${SECTION}/">Compare Octopus tariffs</a> · <a href="/disclaimer/">Disclaimer</a></nav>
+    <nav class="foot-nav" aria-label="More from Plunge Radar"><a href="/">Today's Agile prices</a> · <a href="/${SECTION}/">Compare Octopus tariffs</a> · <a href="/${EV_PATH}">Electric car charging cost</a> · <a href="/disclaimer/">Disclaimer</a></nav>
     <p>Plunge Radar is independent and not affiliated with Octopus Energy. Links marked as referral links earn us account credit if you switch through them.</p>
     <p>Rates come from the public Octopus Energy API, for paying by monthly Direct Debit, and include any VAT due. There is no VAT on electricity from 1 October 2026 to 31 March 2027. ${cap ? `The price cap figure is Ofgem's Great Britain average for ${esc(cap.label)}; the cap in your region may differ slightly.` : ''}</p>
     <p><b>Information only, not advice.</b> Tariffs change, so check the current rates and terms with Octopus Energy before you switch, and decide for yourself which tariff suits your home. <a href="/disclaimer/">Read the full disclaimer</a>.</p>
@@ -376,6 +383,8 @@ function tariffPage({ p, S, k, base, cap, ref, PR }) {
     </dl>
   </section>
 
+${p.slug === 'intelligent-octopus-go' ? `  <p class="calc-link"><a href="/${EV_PATH}">Work out what charging your car would cost on Intelligent Octopus Go, and what it does to the rest of your bill</a></p>
+` : ''}
   <section class="prose" aria-labelledby="how-h">
     <h2 id="how-h">How ${esc(p.name)} works</h2>
     ${p.how.map((t) => `<p>${esc(t)}</p>`).join('\n    ')}
@@ -479,7 +488,126 @@ ${faqSection('faq-h', 'Choosing an Octopus Energy tariff: common questions', faq
 ${footer(cap)}` + tail(S, 'tariffs-hub');
 }
 
-/** Writes the hub and the four tariff pages. Returns their URLs for the sitemap. */
+
+// ---- Electric car charging cost ------------------------------------------------
+
+const pounds = (n) => (n === null || Number.isNaN(n) ? '–' : '£' + Math.round(n).toLocaleString('en-GB'));
+
+/** Yearly cost of charging, in pounds, from miles, kWh per mile and a unit rate in pence. */
+export const evCost = (miles, kwhPerMile, pence) => (miles * kwhPerMile * pence) / 100;
+
+function evPage({ S, k, base, cap, ref, PR }) {
+  const path = EV_PATH;
+  const url = `${base}/${path}`;
+  const title = 'Cost to Charge an Electric Car at Home | Plunge Radar';
+  const description = 'What it costs to charge an electric car at home on Intelligent Octopus Go and Flexible Octopus in your region, plus a calculator for your whole bill.';
+  const R = S.regions[k].raw;
+  const { miles, kwhPerMile } = EV_DEFAULTS;
+  const kwh = miles * kwhPerMile;
+  const rows = Object.keys(PR.REGIONS).map((key) => {
+    const r = S.regions[key].raw;
+    return `<tr${key === k ? ' class="is-current"' : ''} data-region="${key}"><th scope="row">${esc(PR.REGIONS[key].name)}</th><td class="p" data-label="Intelligent Octopus Go"><span>${pounds(evCost(miles, kwhPerMile, r.goNight))}</span></td><td class="p" data-label="Flexible Octopus"><span>${pounds(evCost(miles, kwhPerMile, r.flexUnit))}</span></td><td class="p" data-label="Day rate on Go"><span>${p1(r.goDay)}</span></td></tr>`;
+  }).join('\n          ');
+  const faqs = [
+    ['How much does it cost to charge an electric car at home?', `It depends on your tariff and how far you drive. Octopus Energy's own example: driving 7,000 miles a year at the UK average of 0.301 kWh per mile, smart charging at Intelligent Octopus Go's 7.6p per kWh, costs about £160 a year. On Flexible Octopus ${S.regions[k].inRegion}, at ${S.regions[k].flexUnit} per kWh, the same charging costs about ${pounds(evCost(miles, kwhPerMile, R.flexUnit))}.`],
+    ['What counts as the cheap rate on Intelligent Octopus Go?', 'Your whole home gets the cheap rate from 11:30pm to 5:30am every night. Your first 6 hours of smart charging each day are also billed at the cheap rate, whenever Octopus Energy schedules them. Bump charges and charging Octopus Energy hasn\'t scheduled are billed at the day rate.'],
+    ['Does Intelligent Octopus Go work with my car?', 'Octopus Energy says it works with over 280 cars and selected chargers. Check yours on its Intelligent Octopus Go page. If your car or charger isn\'t supported, Octopus Energy suggests its Octopus Go tariff instead.'],
+    ['I don\'t have a home charger. Can I still use it?', 'You need a compatible car or charging system. Octopus Energy says its engineers can install a charger for you.'],
+    ['Does it cover charging away from home?', 'No. Intelligent Octopus Go only works for home charging. Octopus Energy says customers get 8% off public charging on its Electroverse network.'],
+    ['Is there an exit fee?', 'Yes. Intelligent Octopus Go has fixed rates for 12 months and a £50 exit fee if you change tariff or supplier early. Flexible Octopus has no exit fee.'],
+    ...SHARED_FAQS,
+  ];
+  const ld = [
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Plunge Radar', item: `${base}/` },
+      { '@type': 'ListItem', position: 2, name: 'Electric car charging cost', item: url },
+    ] },
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, url, description, inLanguage: 'en-GB' },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ];
+  return head({ base, path, title, description, ld }) + `
+<header class="hero">
+  <div class="hero-inner">${brand([['Plunge Radar', '/'], ['Electric car charging cost', null]])}
+    <h1>What does it cost to charge an electric car at home?</h1>
+    <p class="hero-lede">Intelligent Octopus Go is Octopus Energy's electricity tariff for electric car owners, with a cheap overnight rate. See what charging costs on it and on Octopus Energy's standard tariff, Flexible Octopus, in your region, and what it means for the rest of your bill.</p>
+    <p class="hero-answer ev-answer"><span class="ha-k">7,000 miles a year <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span></span> <b>about <span data-ev="goCar">${pounds(evCost(miles, kwhPerMile, R.goNight))}</span></b> <span class="ha-s">on Intelligent Octopus Go, against <span data-ev="flexCar">${pounds(evCost(miles, kwhPerMile, R.flexUnit))}</span> on Flexible Octopus</span></p>
+    <div class="hero-cta ref-only">
+      ${cta('hero', `Join Octopus Energy <span class="badge"><span class="reward">£50</span> credit</span>`)}
+      ${heroFine}
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  ${regionPicker(PR, k)}
+
+  <section class="card calc ev-calc" id="ev" aria-labelledby="ev-h">
+    <h2 id="ev-h">Work out your own costs</h2>
+    <p class="calc-intro">Uses Octopus Energy's current rates <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span> for paying by Direct Debit. The starting figures are Octopus Energy's own example: 7,000 miles a year at the UK average of 0.301 kWh per mile.</p>
+    <form class="calc-form" id="ev-form" novalidate>
+      <div class="field">
+        <label for="ev-miles">Miles you drive a year</label>
+        <input id="ev-miles" type="number" inputmode="numeric" min="500" max="50000" step="500" value="${miles}">
+      </div>
+      <div class="field">
+        <label for="ev-eff">Your car's kWh per mile</label>
+        <input id="ev-eff" type="number" inputmode="decimal" min="0.15" max="0.6" step="0.01" value="${kwhPerMile}">
+        <p class="hint">Use your own car's figure if you know it. 0.301 is the UK average Octopus Energy uses.</p>
+      </div>
+      <div class="field">
+        <label for="ev-bump">Charging at the day rate</label>
+        <select id="ev-bump">
+          <option value="0" selected>None: all smart charging</option>
+          <option value="0.1">A little: some bump charges (10%)</option>
+          <option value="0.25">Quite a lot (25%)</option>
+        </select>
+        <p class="hint">Bump charges, and charging Octopus Energy hasn't scheduled, cost the day rate.</p>
+      </div>
+      <div class="field">
+        <label for="ev-home">Rest of your home, kWh a year</label>
+        <input id="ev-home" type="number" inputmode="numeric" min="0" max="20000" step="100" value="2500">
+        <p class="hint">Not counting the car. Ofgem's typical household figure is 2,500 kWh a year. Enter 0 to compare the car only.</p>
+      </div>
+      <div class="field">
+        <label for="ev-night">How much of that is between 11:30pm and 5:30am?</label>
+        <select id="ev-night">
+          <option value="0.1" selected>A little (10%)</option>
+          <option value="0.2">Some, with timers (20%)</option>
+          <option value="0.4">A lot, such as storage heaters or a battery (40%)</option>
+        </select>
+        <p class="hint">Your guess. The rest of your home pays the day rate on Intelligent Octopus Go.</p>
+      </div>
+    </form>
+    <div class="calc-out" id="ev-out" aria-live="polite"></div>
+    <p class="fine-calc">An illustration, not a quote. It uses unit rates and standing charges only, assumes your smart charging stays within 6 hours a day as Octopus Energy's own example does, and can't predict future prices. Intelligent Octopus Go rates are fixed for 12 months; Flexible Octopus prices change every three months.</p>
+  </section>
+
+  <section class="card compare ev-table" aria-labelledby="evt-h">
+    <h2 id="evt-h">Charging 7,000 miles a year, by region</h2>
+    <p class="lead">Yearly cost of charging at 0.301 kWh per mile, using Octopus Energy's current rates for paying by Direct Debit. The cheap rate on Intelligent Octopus Go is ${p1(R.goNight)} in every region; the day rate varies.${cap ? ` At the price cap rate (${p1(cap.unitRate)}, Great Britain average) the same charging costs about ${pounds(evCost(miles, kwhPerMile, cap.unitRate))}.` : ''}</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Region</th><th class="p">Intelligent Octopus Go</th><th class="p">Flexible Octopus</th><th class="p">Day rate on Go</th></tr></thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="evhow-h">
+    <h2 id="evhow-h">Why the rest of your bill matters</h2>
+    <p>On Intelligent Octopus Go, your whole home gets the cheap rate from 11:30pm to 5:30am, and your first 6 hours of smart charging each day are cheap too, whenever they happen. Everything else pays the day rate, which is <span data-v="goDay">${esc(S.regions[k].goDay)}</span> per kWh <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span>, higher than Flexible Octopus at <span data-v="flexUnit">${esc(S.regions[k].flexUnit)}</span>.</p>
+    <p>So the more you drive and charge at home, the more you save. If you drive very little and use most of your electricity during the day, the higher day rate can cancel out the saving. The calculator above shows both sides.</p>
+    <p>Read more about <a href="/${SECTION}/intelligent-octopus-go/">Intelligent Octopus Go</a> and <a href="/${SECTION}/flexible/">Flexible Octopus</a>, or <a href="/${SECTION}/">take the quiz</a>.</p>
+  </section>
+${switchSection('Intelligent Octopus Go', '<b>Sign up for Intelligent Octopus Go.</b> First check that your car or charger is supported on Octopus Energy\'s Intelligent Octopus Go page. Once you\'re on supply and your smart meter is sending half-hourly readings, sign up and connect your car or charger in the Octopus app.', ref)}
+${faqSection('faq-h', 'Charging an electric car at home: common questions', faqs)}
+${otherTariffs('')}
+${footer(cap)}` + tail(S, 'ev-charging');
+}
+
+/** Writes the hub, the four tariff pages and the electric car page. Returns their URLs for the sitemap. */
 export async function buildTariffPages({ outDir, base, PR, cfg, tariffs, dataset, history, today }) {
   const S = tariffSummary({ tariffs, dataset, history, today, PR });
   const k = PR.REGIONS[cfg?.defaultRegion] ? cfg.defaultRegion : DEFAULT_REGION;
@@ -496,5 +624,8 @@ export async function buildTariffPages({ outDir, base, PR, cfg, tariffs, dataset
     await writeFile(join(outDir, SECTION, p.slug, 'index.html'), fill(tariffPage({ p, S, k, base, cap, ref, PR })));
     urls.push(`${base}/${SECTION}/${p.slug}/`);
   }
+  await mkdir(join(outDir, EV_PATH), { recursive: true });
+  await writeFile(join(outDir, EV_PATH, 'index.html'), fill(evPage({ S, k, base, cap, ref, PR })));
+  urls.push(`${base}/${EV_PATH}`);
   return urls;
 }

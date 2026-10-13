@@ -371,3 +371,14 @@ svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; 
   .compare.tariffs-table th:nth-child(5), .compare.tariffs-table td:nth-child(5) { display: grid; }
   .tariffs-table td.p::before { font-family: var(--font-body); }
 }
+
+/* Electric car charging cost page */
+.ev-answer .ha-s span[data-ev], .ev-answer b { white-space: nowrap; }
+.calc-link { margin: 0; padding: 12px 16px; border-radius: 12px; background: var(--cheap-wash); font-weight: 700; }
+.calc-link a { color: var(--accent); }
+.ev-table td.p, .ev-table th.p { text-align: right; white-space: nowrap; }
+.ev-table thead th.p { white-space: normal; }
+.ev-table tr.is-current th { background: var(--cta-wash); }
+.ev-table th, .ev-table td { padding-inline: 6px; }
+.ev-table th[scope="row"] { font: 600 0.88rem var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink); }
+@media (max-width: 520px) { .ev-table th, .ev-table td { font-size: 0.8rem; } .ev-table thead th { font-size: 0.66rem; letter-spacing: 0.02em; } }

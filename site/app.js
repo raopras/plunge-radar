@@ -361,7 +361,7 @@
       var h = history[k];
       if (!h || !h.days.length) { box.hidden = true; return; }
       box.hidden = false;
-      var kwh = Math.min(20000, Math.max(500, Math.round(Number($('calc-kwh').value) || 2700)));
+      var kwh = Math.min(20000, Math.max(500, Math.round(Number($('calc-kwh').value) || 2500)));
       if (String(kwh) !== $('calc-kwh').value) $('calc-kwh').value = kwh;
       var shift = Number($('calc-shift').value) || 0;
       var r = estimate(h.days, kwh, shift);
