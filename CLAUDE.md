@@ -90,3 +90,7 @@ What failed on 12–13 Oct: a test read the live archive in `site/data`, broke a
 - **Move-In Kit**: a white-label page for letting agents (business affiliate route).
 - Daily social posts (Instagram/TikTok) using the share card. Pras must create accounts and approve each public post.
 - **Weekly report**: Pras wants one. The first scheduled-task attempt (Mondays, reading Umami and Search Console via the Claude browser) was declined; agree the delivery method with him first. Umami needs a sign-in in the Claude browser.
+
+## Tradedoubler (added 19 Oct 2026)
+
+- Site ID 3503369. `site/3503369.html` is an intentionally empty file that proves site ownership to Tradedoubler. Keep it while the site is in their network. The SEO audit only walks `index.html` pages, so it ignores this file.
