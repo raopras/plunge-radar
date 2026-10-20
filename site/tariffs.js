@@ -1,3 +1,4 @@
+/*! Plunge Radar. © 2026 Pras Rao. All rights reserved. Not licensed for copying, reuse or redistribution. plungeradar.co.uk */
 // The /octopus-tariffs/ pages: region switch, the tariff quiz, the tariff finder, the copy-link box,
 // the phone sticky bar and anonymous click counting. The figures for every region
 // are embedded in the page (window.TARIFF_PAGE), so nothing else is downloaded.
@@ -283,6 +284,15 @@
   function setupFinder() {
     var form = $('finder-form');
     if (!form) return;
+    if (!window.PlungeFinder) {
+      // Not on plungeradar.co.uk: send people to the real tool.
+      var msg = $('finder-msg');
+      msg.textContent = 'This tariff finder only works on ';
+      var home = el('a', '', 'plungeradar.co.uk'); home.href = 'https://plungeradar.co.uk/octopus-tariffs/tariff-finder/';
+      msg.appendChild(home); msg.appendChild(document.createTextNode('.'));
+      form.querySelector('button[type=submit]').disabled = true;
+      return;
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var a = {}, missing = [];

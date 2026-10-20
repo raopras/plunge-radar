@@ -136,6 +136,7 @@ function brand(crumbs) {
 function cta(id, label, { big = false, small = false } = {}) {
   return `<a data-cta="${id}" class="btn-cta${big ? ' big' : ''}${small ? ' small' : ''} ref-link" href="{{REF}}" rel="sponsored noopener" target="_blank">${label}</a>`;
 }
+export const FINDER_STRIP = '<a class="finder-strip" href="/octopus-tariffs/tariff-finder/" data-strip="finder"><span class="fs-icon" aria-hidden="true">?</span><span class="fs-text"><b>Which Octopus Energy tariff suits your home?</b> <span>Answer 7 quick questions about your car, heating, solar panels and when you&#39;re home.</span></span><span class="fs-go">Find my tariff <span aria-hidden="true">→</span></span></a>';
 const heroFine = '<p class="fine">Referral link: you and we each get <span class="reward">£50</span> credit once you\'re on supply and your first Direct Debit is paid. Plunge Radar is independent of Octopus Energy.</p>';
 
 function regionPicker(PR, k) {
@@ -385,6 +386,7 @@ function tariffPage({ p, S, k, base, cap, ref, PR }) {
 </header>
 
 <main class="wrap">
+  ${FINDER_STRIP}
   ${regionPicker(PR, k)}
 
   <section class="card glance" aria-labelledby="glance-h">
@@ -456,6 +458,7 @@ function hubPage({ S, k, base, cap, ref, PR }) {
 </header>
 
 <main class="wrap">
+  ${FINDER_STRIP}
   <section class="card quiz" id="quiz" aria-labelledby="quiz-h">
     <h2 id="quiz-h">Find your tariff in four questions</h2>
     <form id="quiz-form" novalidate>${q('ev', '1. Do you charge an electric car at home?', [['yes', 'Yes'], ['soon', 'Getting one soon'], ['no', 'No']])}${q('shift', '2. Could you use more electricity at cheap times, like overnight?', [['lot', 'Yes, a lot (car, battery, heat pump, timers)'], ['some', 'Some: washing, dishwasher'], ['none', 'Not really']])}${q('change', '3. How do you feel about prices that change?', [['ok', 'Fine, if it should cost less overall'], ['fixed', 'I\'d rather know what I\'ll pay']])}${q('meter', '4. Do you have a smart meter?', [['yes', 'Yes'], ['no', 'No'], ['unsure', 'Not sure']])}
@@ -588,6 +591,7 @@ function finderPage({ S, k, base, cap, ref, PR }) {
       </div>
       <p class="fine-quiz">Referral link: you and we each get <span class="reward">£50</span> credit. You join Octopus Energy first, then choose this tariff in your account. Plunge Radar is independent of Octopus Energy. This is a guide, not advice: check the rates for your postcode with Octopus Energy before you switch.</p>
     </div>
+    <p class="hint finder-rights">The tariff finder's questions, rules and wording are © 2026 Pras Rao. You're welcome to use it and link to it, but please don't copy, scrape or republish it. <a href="/disclaimer/#s9">Terms of use</a>.</p>
   </section>
 
   ${regionPicker(PR, k)}
@@ -675,6 +679,7 @@ function evPage({ S, k, base, cap, ref, PR }) {
 </header>
 
 <main class="wrap">
+  ${FINDER_STRIP}
   ${regionPicker(PR, k)}
 
   <section class="card calc ev-calc" id="ev" aria-labelledby="ev-h">

@@ -1,3 +1,4 @@
+/*! Plunge Radar tariff finder. © 2026 Pras Rao. All rights reserved. Not licensed for copying, reuse or redistribution. plungeradar.co.uk */
 // Tariff finder: the rules and the facts behind them. No page code here, so the tests can
 // run it directly. Every tariff fact and every rule comes from Octopus Energy's own pages,
 // read word for word on 20 Oct 2026 and recorded in docs/tariff-facts.md:
@@ -202,5 +203,9 @@
 
   var api = { TARIFFS: T, recommend: recommend };
   if (typeof module === 'object' && module.exports) module.exports = api;
+  // In a browser the finder only runs on Plunge Radar itself (and local test servers),
+  // so a copied page or script doesn't work elsewhere.
+  var host = root.location && root.location.hostname;
+  if (host && !/^(www\.)?plungeradar\.co\.uk$|^localhost$|^127\.0\.0\.1$/.test(host)) return;
   root.PlungeFinder = api;
 })(typeof window !== 'undefined' ? window : globalThis);

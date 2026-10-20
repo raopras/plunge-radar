@@ -55,6 +55,7 @@ export function audit(outDir = OUT) {
     }
     if (!/tariff/i.test(hero)) issues.push(`${p}: the opening section doesn't say Agile Octopus is a tariff`);
     if (/<img(?![^>]*\balt=)[^>]*>/.test(h)) issues.push(`${p}: image without alt text`);
+    if (!p.startsWith('octopus-tariffs/tariff-finder/') && !h.includes('class="finder-strip" href="/octopus-tariffs/tariff-finder/"')) issues.push(`${p}: no tariff finder link at the top of the page`);
 
     for (const [k, v] of [['title', title], ['description', description], ['h1', h1s[0] || '']]) {
       if (seen[k].has(v)) issues.push(`${p}: same ${k} as ${seen[k].get(v)}`);

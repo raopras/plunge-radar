@@ -15,5 +15,8 @@
     "audit": "node scripts/seo-audit.mjs"
   },
   "license": "UNLICENSED",
-  "author": "Pras Rao"
+  "author": "Pras Rao",
+  "devDependencies": {
+    "terser": "5.51.2"
+  }
 }

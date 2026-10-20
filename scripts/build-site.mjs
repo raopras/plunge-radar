@@ -14,6 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { addDays, londonDateString } from './lib.mjs';
 import { disclaimerPage } from './legal.mjs';
 import { buildTariffPages } from './tariff-pages.mjs';
+import { minify } from 'terser';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -234,6 +235,20 @@ function setMeta(html, { title, description, url }) {
 
 // ---- Build ------------------------------------------------------------------
 
+// The published scripts are minified and their local names mangled, with a copyright
+// banner kept at the top. This doesn't make copying impossible (browsers need the code),
+// but it makes the site's tools much harder to lift and reuse. Source stays readable in site/.
+const BANNER = '/*! Plunge Radar. © 2026 Pras Rao. All rights reserved. Not licensed for copying, reuse or redistribution. plungeradar.co.uk */';
+async function minifyScripts(outDir) {
+  for (const f of await readdir(outDir)) {
+    if (!f.endsWith('.js')) continue;
+    const file = join(outDir, f);
+    const src = await readFile(file, 'utf8');
+    const out = await minify(src, { compress: { passes: 2 }, mangle: true, format: { comments: false, preamble: BANNER } });
+    await writeFile(file, out.code + '\n');
+  }
+}
+
 export async function build({
   siteDir = join(ROOT, 'site'),
   outDir = join(ROOT, '_site'),
@@ -356,6 +371,7 @@ export async function build({
 <h1 style="font:900 2rem/1.1 var(--font-display);margin:0">Page not found</h1>
 <p class="lead">That page doesn't exist. Today's Agile Octopus prices are on the <a href="/">home page</a>, or pick your region:</p>
 <ul class="region-links">${links}</ul>
+<a class="finder-strip" href="/octopus-tariffs/tariff-finder/" data-strip="finder"><span class="fs-icon" aria-hidden="true">?</span><span class="fs-text"><b>Which Octopus Energy tariff suits your home?</b> <span>Answer 7 quick questions about your car, heating, solar panels and when you're home.</span></span><span class="fs-go">Find my tariff <span aria-hidden="true">→</span></span></a>
 </main></body></html>
 `);
 
@@ -366,6 +382,7 @@ ${pages.map((p) => `  <url><loc>${p.loc}</loc><lastmod>${lastmod}</lastmod><chan
 `;
   await writeFile(join(outDir, 'sitemap.xml'), sitemap);
   log(`Built ${pages.length} pages into ${outDir}${day ? ` using prices for ${dayKey}` : ' (no price data yet)'}`);
+  await minifyScripts(outDir);
   return { pages: pages.map((p) => p.loc), dayKey };
 }
 

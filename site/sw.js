@@ -1,6 +1,6 @@
 // Offline support: always try the network first so prices are fresh,
 // and fall back to the last copy when there's no connection.
-const CACHE = 'plunge-radar-v17';
+const CACHE = 'plunge-radar-v18';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'regions.js', 'live.js', 'manifest.webmanifest', 'icons/icon.svg', 'data/latest.json'];
 
 self.addEventListener('install', (e) => {

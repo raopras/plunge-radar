@@ -40,6 +40,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+
+      # The build minifies the site's scripts with terser (the only dependency).
+      - name: Install build tools
+        run: npm ci --no-audit --no-fund
 
       # Tests guard code changes. Scheduled runs don't change code, so they skip the
       # tests: a test must never stop fresh prices reaching the site.

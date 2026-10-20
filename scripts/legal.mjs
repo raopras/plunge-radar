@@ -47,7 +47,8 @@ export const DISCLAIMER_SECTIONS = [
   ]],
   ['Changes, copyright and law', [
     'We may change, suspend or remove this site, or this disclaimer, at any time. The version on this page applies from the date shown.',
-    'The site\'s design, text and code are © 2026 Pras Rao, all rights reserved. Price data belongs to Octopus Energy. "Octopus Energy" and "Agile Octopus" are trade marks of their owner.',
+    'The site\'s design, text and code, including the tariff finder\'s questions, rules and wording and the calculators, are © 2026 Pras Rao, all rights reserved. Price data belongs to Octopus Energy. "Octopus Energy" and "Agile Octopus" are trade marks of their owner.',
+    'You may use the site and its tools for your own personal use, and link to any page. You must not copy, scrape, frame or republish the site, its tools or its code, in whole or in substantial part, or use automated tools to collect its content or train AI models on it, without written permission.',
     'This disclaimer is governed by the law of England and Wales. If you live in Scotland or Northern Ireland, you can also bring proceedings in your local courts.',
   ]],
   ['Contact', [
@@ -108,6 +109,7 @@ export function disclaimerPage({ base }) {
   </div>
 </header>
 <main class="wrap legal">
+  <a class="finder-strip" href="/octopus-tariffs/tariff-finder/" data-strip="finder"><span class="fs-icon" aria-hidden="true">?</span><span class="fs-text"><b>Which Octopus Energy tariff suits your home?</b> <span>Answer 7 quick questions about your car, heating, solar panels and when you're home.</span></span><span class="fs-go">Find my tariff <span aria-hidden="true">→</span></span></a>
   <div class="card legal-summary">
     <h2>In short</h2>
     <ul>

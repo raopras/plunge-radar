@@ -1,4 +1,22 @@
+# Search engines and AI search assistants that send visitors are welcome.
 User-agent: *
 Allow: /
+
+# Crawlers that collect pages to train AI models are not allowed to copy this site.
+User-agent: GPTBot
+User-agent: CCBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: meta-externalagent
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: Omgilibot
+User-agent: ImagesiftBot
+User-agent: Timpibot
+Disallow: /
 
 Sitemap: https://plungeradar.co.uk/sitemap.xml

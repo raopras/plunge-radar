@@ -100,3 +100,12 @@ What failed on 12–13 Oct: a test read the live archive in `site/data`, broke a
 - Seven questions (electric car and Intelligent Octopus Go compatibility, heating, solar/battery, someone home in the day, flexibility, price certainty, smart meter). Rules and tariff facts in `site/finder-rules.js` (loaded on that page only, before `tariffs.js`; also imported by `tariff-pages.mjs` for the glance table). UI in `tariffs.js` (`setupFinder`), Umami event `tariff-finder`.
 - Picks follow Octopus Energy's smart tariff guide (octopus.energy/blog/which-smart-tariff/) and the tariffs page; `test/finder.test.mjs` checks Octopus Energy's table and all 1,620 answer combinations. When Octopus Energy changes that guide, update the rules, the table on the page and the test together.
 - Intelligent Octopus Go is now 8p/kWh (October 2026 v2, IOG-SMB-FIX-12M-26-10-14); the old 7.6p/£160 example is gone from Octopus Energy's page, so the EV calculator calls 7,000 miles at 0.301 kWh/mile an example.
+- Every page carries a tariff finder strip at the top of `<main>` (`FINDER_STRIP` in `tariff-pages.mjs`; written into `site/index.html`, `legal.mjs` and the 404 too). The SEO audit fails any page without it, except the finder itself.
+
+## Copy protection (added 20 Oct 2026)
+
+- The build minifies and mangles every script in `_site/` with terser (exact devDependency; CI runs `npm ci`), with a copyright banner. Readable source stays in `site/`.
+- `finder-rules.js` only defines `PlungeFinder` on plungeradar.co.uk, www, localhost and 127.0.0.1; elsewhere the finder shows "This tariff finder only works on plungeradar.co.uk". Add any new domain to that regex.
+- `robots.txt` blocks AI training crawlers (GPTBot, CCBot, ClaudeBot, Google-Extended and others) but still allows search engines and AI search assistants that send visitors.
+- Copyright and no-scraping terms: notice under the finder and section 9 of `/disclaimer/`.
+- Honest limit told to Pras: anything that runs in a browser can be copied by someone determined; these steps make it harder and give grounds to ask for copies to be taken down.
