@@ -1,4 +1,4 @@
-// The /octopus-tariffs/ pages: region switch, the tariff quiz, the copy-link box,
+// The /octopus-tariffs/ pages: region switch, the tariff quiz, the tariff finder, the copy-link box,
 // the phone sticky bar and anonymous click counting. The figures for every region
 // are embedded in the page (window.TARIFF_PAGE), so nothing else is downloaded.
 (function () {
@@ -86,6 +86,7 @@
     if (sel) sel.value = k;
     if (remember) store('plunge-region', k);
     if (lastAnswers) showResult(lastAnswers, false);
+    if (finderAnswers) showFinder(finderAnswers, false);
     if ($('ev-form')) renderEv();
   }
 
@@ -178,6 +179,118 @@
   }
 
 
+  // ---- Tariff finder ---------------------------------------------------------
+  var finderAnswers = null;
+  var FQ = ['ev', 'heat', 'solar', 'home', 'shift', 'price', 'meter'];
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+  function para(box, text, cls) { box.appendChild(el('p', cls || '', text)); }
+  // Today's figures for the four tariffs we track, in the visitor's region.
+  function liveLine(id, d) {
+    if (id === 'agile-octopus' && d.agileToday !== '–') return 'Agile Octopus ' + d.agileWhen + ' ' + d.inRegion + ': ' + d.agileToday + ' per kWh on average, ' + d.agileAvg30 + ' over recent days.';
+    if (id === 'octopus-tracker' && d.trackerToday !== '–') return 'Octopus Tracker ' + d.trackerWhen + ' ' + d.inRegion + ': ' + d.trackerToday + ' per kWh, ' + d.trackerAvg30 + ' on average over 30 days.';
+    if (id === 'flexible-octopus' && d.flexUnit !== '–') return 'Flexible Octopus ' + d.inRegion + ': ' + d.flexUnit + ' per kWh and ' + d.flexStanding + ' a day.';
+    if (id === 'intelligent-octopus-go' && d.goNight !== '–') return 'Intelligent Octopus Go ' + d.inRegion + ': ' + d.goNight + ' per kWh at the cheap rate, ' + d.goDay + ' at other times, and ' + d.goStanding + ' a day.';
+    return '';
+  }
+  function tariffLink(t) { return t.page || t.official; }
+  function miniCard(box, heading, t, extra) {
+    box.textContent = '';
+    box.className = 'fr-mini';
+    box.appendChild(el('p', 'fr-mini-k', heading));
+    var h = el('p', 'fr-mini-name'); var a = el('a', '', t.name); a.href = tariffLink(t);
+    if (!t.page) { a.rel = 'noopener'; a.target = '_blank'; }
+    h.appendChild(a); box.appendChild(h);
+    para(box, t.what);
+    if (extra) para(box, extra, 'hint');
+    box.hidden = false;
+  }
+  function showFinder(a, scroll) {
+    var F = window.PlungeFinder;
+    if (!F) return null;
+    var r = F.recommend(a);
+    var T = F.TARIFFS;
+    var t = T[r.main];
+    var d = PAGE.data[region] || PAGE.data.C;
+    $('fr-name').textContent = t.name;
+    $('fr-what').textContent = t.what;
+    var why = $('fr-why'); why.textContent = '';
+    r.why.forEach(function (w) { para(why, w); });
+    var facts = $('fr-facts'); facts.textContent = '';
+    var live = liveLine(r.main, d);
+    [['How it works', t.rates], ['Today', live], ['Contract', t.contract], ['You need', t.needs.join('; ')]].forEach(function (f) {
+      if (!f[1]) return;
+      var row = el('div'); row.appendChild(el('dt', '', f[0])); row.appendChild(el('dd', '', f[1])); facts.appendChild(row);
+    });
+    var ex = $('fr-export');
+    if (r.exportTariff) miniCard(ex, 'For the power you export', T[r.exportTariff], T[r.exportTariff].rates); else ex.hidden = true;
+    var add = $('fr-addon');
+    if (r.addOn) { add.textContent = ''; add.className = 'fr-mini'; add.appendChild(el('p', 'fr-mini-k', 'Optional add-on for your battery')); para(add, r.addOn); add.hidden = false; } else add.hidden = true;
+    var notes = $('fr-notes'); notes.textContent = '';
+    if (r.notes.length) { notes.appendChild(el('p', 'fr-mini-k', 'Good to know')); var ul = el('ul'); r.notes.forEach(function (n) { ul.appendChild(el('li', '', n)); }); notes.appendChild(ul); }
+    notes.hidden = !r.notes.length;
+    var alt = $('fr-alt'); alt.textContent = '';
+    if (r.alt.length) {
+      alt.className = 'fr-alt';
+      alt.appendChild(el('p', 'fr-mini-k', 'Also worth a look'));
+      var list = el('ul');
+      r.alt.forEach(function (id) {
+        var li = el('li'); var link = el('a', '', T[id].name); link.href = tariffLink(T[id]);
+        if (!T[id].page) { link.rel = 'noopener'; link.target = '_blank'; }
+        li.appendChild(link); li.appendChild(document.createTextNode(': ' + T[id].what)); list.appendChild(li);
+      });
+      alt.appendChild(list);
+    }
+    alt.hidden = !r.alt.length;
+    var gas = $('fr-gas'); gas.textContent = '';
+    if (r.gas) { gas.className = 'fr-alt'; gas.appendChild(el('p', 'fr-mini-k', 'For your gas')); para(gas, 'Octopus Energy\'s gas tariffs are Flexible Octopus, Fixed Octopus and Octopus Tracker.' + (r.main === 'cosy-octopus' || r.main === 'octopus-flux' ? ' ' + t.name + ' is for electricity only.' : '')); }
+    gas.hidden = !r.gas;
+    var steps = $('fr-steps'); steps.textContent = '';
+    steps.appendChild(el('p', 'fr-mini-k', 'How to get it'));
+    var ol = el('ol');
+    var first = 'Join Octopus Energy with our referral link. You start on a standard tariff such as Flexible Octopus while your supply moves over.';
+    var s = [first];
+    if (r.needsMeter) s.push(a.meter === 'none' ? 'Ask Octopus Energy to fit a smart meter, which it does at no extra cost.' : 'Check Octopus Energy can read your smart meter: it usually takes around 14 days to connect.');
+    if (r.main === 'octopus-flux') s.push('Join Outgoing Octopus for your export. Octopus Energy applies to your network operator for an export MPAN, which takes 1 to 4 weeks, and needs your MCS certificate.');
+    else if (r.exportTariff) s.push('Apply for Outgoing Octopus. Octopus Energy applies to your network operator for an export MPAN, which takes 1 to 4 weeks.');
+    if (r.main !== 'flexible-octopus') s.push('Switch to ' + t.name + ' from its page on Octopus Energy\'s website or in your account.' + (t.smart ? ' Octopus Energy emails you to accept the terms once it can read your meter.' : ''));
+    s.forEach(function (x) { ol.appendChild(el('li', '', x)); });
+    steps.appendChild(ol);
+    var more = $('fr-more');
+    more.href = tariffLink(t);
+    more.textContent = (t.page ? 'Read our guide to ' : 'See ') + t.name + (t.page ? '' : ' on Octopus Energy\'s website');
+    if (!t.page) { more.rel = 'noopener'; more.target = '_blank'; } else { more.removeAttribute('target'); more.removeAttribute('rel'); }
+    all('#finder-result a.ref-link').forEach(function (x) { x.setAttribute('data-tariff', r.main); });
+    var box = $('finder-result');
+    box.hidden = false;
+    if (scroll) { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); box.focus({ preventScroll: true }); }
+    return r;
+  }
+  function setupFinder() {
+    var form = $('finder-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var a = {}, missing = [];
+      FQ.forEach(function (n, i) {
+        var c = form.querySelector('input[name="' + n + '"]:checked');
+        if (c) a[n] = c.value; else missing.push(i + 1);
+        $('fq-' + n).classList.toggle('is-missing', !c);
+      });
+      if (missing.length) {
+        $('finder-msg').textContent = 'Please answer question' + (missing.length > 1 ? 's ' : ' ') + missing.join(', ') + '.';
+        var firstMissing = $('fq-' + FQ[missing[0] - 1]);
+        if (firstMissing) firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      $('finder-msg').textContent = '';
+      finderAnswers = a;
+      var r = showFinder(a, true);
+      if (r) track('tariff-finder', { result: r.main, export: r.exportTariff || '', ev: a.ev, heat: a.heat, solar: a.solar, home: a.home, shift: a.shift, price: a.price, meter: a.meter, region: region || '' });
+    });
+    form.addEventListener('change', function (e) { var fs = e.target.closest('fieldset'); if (fs) fs.classList.remove('is-missing'); });
+  }
+
+
   // ---- Electric car charging cost --------------------------------------------
   var evTracked = false;
   function gbp(n) { return '£' + Math.round(n).toLocaleString('en-GB'); }
@@ -239,7 +352,7 @@
     var dismissed = false;
     try { dismissed = sessionStorage.getItem('plunge-bar') === 'off'; } catch (e) { /* ignore */ }
     if (dismissed) return;
-    var targets = all('.hero-cta, #switch, #quiz-result');
+    var targets = all('.hero-cta, #switch, #quiz-result, #finder-result');
     var seen = targets.map(function (t, i) { return i === 0; });
     var update = function () {
       var show = !dismissed && !seen.some(Boolean);
@@ -263,6 +376,7 @@
   setupRegion();
   setupCopy();
   setupQuiz();
+  setupFinder();
   setupEv();
   setupStickyBar(ok);
 })();

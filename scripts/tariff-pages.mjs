@@ -10,6 +10,9 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { emailLink } from './legal.mjs';
+import '../site/finder-rules.js';
+
+const FINDER = globalThis.PlungeFinder;
 
 const TZ = 'Europe/London';
 const fmtShort = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' });
@@ -20,7 +23,10 @@ const dayLabel = (d) => fmtShort.format(new Date(`${d}T12:00:00Z`));
 
 export const SECTION = 'octopus-tariffs';
 export const EV_PATH = 'electric-car-charging-cost/';
-// Octopus Energy's own figures (Intelligent Octopus Go page, checked 13 Oct 2026).
+export const FINDER_PATH = 'octopus-tariffs/tariff-finder/';
+// Example starting figures for the calculator (visitors change them). Octopus Energy's
+// Intelligent Octopus Go page used these until October 2026; it no longer does, so the
+// page labels them as an example, not as Octopus Energy's figures.
 export const EV_DEFAULTS = { miles: 7000, kwhPerMile: 0.301 };
 const DEFAULT_REGION = 'C';
 
@@ -187,14 +193,14 @@ function otherTariffs(currentSlug) {
   <section class="others" aria-labelledby="others-h">
     <h2 id="others-h">Compare other Octopus Energy tariffs</h2>
     <ul class="tariff-cards">${items}</ul>
-    <p class="hint"><a href="/${SECTION}/">Take the 4-question quiz to see which tariff suits you</a>.</p>
+    <p class="hint"><a href="/${FINDER_PATH}">Use the tariff finder: solar panels, batteries, heat pumps, electric cars and more</a>.</p>
   </section>`;
 }
 
 function footer(cap) {
   return `
   <footer class="small">
-    <nav class="foot-nav" aria-label="More from Plunge Radar"><a href="/">Today's Agile prices</a> · <a href="/${SECTION}/">Compare Octopus tariffs</a> · <a href="/${EV_PATH}">Electric car charging cost</a> · <a href="/disclaimer/">Disclaimer</a></nav>
+    <nav class="foot-nav" aria-label="More from Plunge Radar"><a href="/">Today's Agile prices</a> · <a href="/${SECTION}/">Compare Octopus tariffs</a> · <a href="/${FINDER_PATH}">Tariff finder</a> · <a href="/${EV_PATH}">Electric car charging cost</a> · <a href="/disclaimer/">Disclaimer</a></nav>
     <p>Plunge Radar is independent and not affiliated with Octopus Energy. Links marked as referral links earn us account credit if you switch through them.</p>
     <p>Rates come from the public Octopus Energy API, for paying by monthly Direct Debit, and include any VAT due. There is no VAT on electricity from 1 October 2026 to 31 March 2027. ${cap ? `The price cap figure is Ofgem's Great Britain average for ${esc(cap.label)}; the cap in your region may differ slightly.` : ''}</p>
     <p><b>Information only, not advice.</b> Tariffs change, so check the current rates and terms with Octopus Energy before you switch, and decide for yourself which tariff suits your home. <a href="/disclaimer/">Read the full disclaimer</a>.</p>
@@ -205,7 +211,7 @@ function footer(cap) {
   </footer>`;
 }
 
-function tail(S, page) {
+function tail(S, page, extraScripts = []) {
   return `
 </main>
 
@@ -217,7 +223,8 @@ function tail(S, page) {
 
 <script>window.TARIFF_PAGE = ${JSON.stringify({ page, data: S.regions }).replace(/</g, '\\u003c')};</script>
 <script src="/config.js"></script>
-<script src="/tariffs.js"></script>
+${extraScripts.map((f) => `<script src="/${f}"></script>
+`).join('')}<script src="/tariffs.js"></script>
 </body>
 </html>
 `;
@@ -466,6 +473,7 @@ function hubPage({ S, k, base, cap, ref, PR }) {
       </div>
       <p class="fine-quiz">Referral link: you and we each get <span class="reward">£50</span> credit. You join Octopus Energy first, then choose this tariff in your account. This is a guide, not advice.</p>
     </div>
+    <p class="hint">Got solar panels, a battery, a heat pump or storage heaters? <a href="/${FINDER_PATH}">Use the full tariff finder</a>, which covers Octopus Energy's home tariffs, including export.</p>
   </section>
 
   ${regionPicker(PR, k)}
@@ -493,6 +501,123 @@ ${footer(cap)}` + tail(S, 'tariffs-hub');
 }
 
 
+// ---- Tariff finder -----------------------------------------------------------
+
+/** The full tariff finder: seven questions, matched with Octopus Energy's own advice. */
+function finderPage({ S, k, base, cap, ref, PR }) {
+  const path = FINDER_PATH;
+  const url = `${base}/${path}`;
+  const title = 'Octopus Energy Tariff Finder for Your Home | Plunge Radar';
+  const description = 'Find the Octopus Energy tariff that fits your home: electric car, heat pump, solar panels, battery, storage heaters and when you\'re at home.';
+  const T = FINDER.TARIFFS;
+  const faqs = [
+    ['How does the tariff finder choose a tariff?', 'It follows Octopus Energy\'s own advice: its guide to choosing a smart tariff, which matches the tech in your home to a tariff, and the "Choose this tariff if" lists on its tariffs page. The table on this page shows those recommendations. The finder doesn\'t know your usage or your exact rates, so treat the result as a starting point and check the rates for your postcode with Octopus Energy.'],
+    ['Do I need a smart meter for these tariffs?', 'Yes, for all of Octopus Energy\'s smart tariffs, including Intelligent Octopus Go, Octopus Go, Cosy Octopus, Octopus Flux, Snug Octopus, Agile Octopus and Octopus Tracker. Octopus Energy says it installs smart meters at no extra cost. Flexible Octopus works without one.'],
+    ['I have an electric car and a heat pump. Which tariff?', 'Octopus Energy says Intelligent Octopus Go is usually the cheapest option, because your whole home gets the cheap rate from 11:30pm to 5:30am, so you can run the heat pump then too. If your car or charger isn\'t compatible, it says Octopus Go is the next best option.'],
+    ['I have solar panels but no battery. What should I choose?', 'Octopus Energy recommends Outgoing Octopus for the power you export, which pays 12p per kWh. For the power you buy from the grid, it says your options are the same as anyone else\'s, so answer the other questions to find an import tariff.'],
+    ['Can I be on a smart tariff if nobody is home in the day?', 'Yes. Octopus Energy says Agile Octopus is great if you work from home, but other tariffs reward different habits: Intelligent Octopus Go and Octopus Go have cheap overnight rates, and Octopus Tracker suits homes that can use less on pricey days.'],
+    ...SHARED_FAQS,
+  ];
+  const ld = [
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Plunge Radar', item: `${base}/` },
+      { '@type': 'ListItem', position: 2, name: 'Octopus Energy tariffs', item: `${base}/${SECTION}/` },
+      { '@type': 'ListItem', position: 3, name: 'Tariff finder', item: url },
+    ] },
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, url, description, inLanguage: 'en-GB' },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ];
+  const q = (n, name, legend, hint, options) => `
+      <fieldset id="fq-${name}">
+        <legend><span class="fq-n">${n}</span> ${esc(legend)}</legend>${hint ? `\n        <p class="hint">${esc(hint)}</p>` : ''}
+        <div class="q-opts">${options.map(([val, label]) => `<label><input type="radio" name="${name}" value="${val}"> <span>${esc(label)}</span></label>`).join('')}</div>
+      </fieldset>`;
+  const picks = [
+    ['Solar panels', 'Outgoing Octopus (export)'], ['Solar panels and a battery', 'Octopus Flux'], ['Solar panels, a battery and a heat pump', 'Octopus Flux'],
+    ['Heat pump', 'Cosy Octopus'], ['Electric car', 'Intelligent Octopus Go'], ['Heat pump and an electric car', 'Intelligent Octopus Go'],
+    ['Electric car, solar panels and a battery', 'Intelligent Octopus Go, Outgoing Octopus and Charge Pack'], ['Heat pump, electric car, solar panels and a battery', 'Intelligent Octopus Go, Outgoing Octopus and Charge Pack'],
+    ['No smart tech', 'Agile Octopus or Octopus Tracker'],
+  ].map(([tech, pick]) => `<tr><th scope="row">${esc(tech)}</th><td>${esc(pick)}</td></tr>`).join('\n          ');
+  const order = ['intelligent-octopus-go', 'octopus-go', 'cosy-octopus', 'octopus-flux', 'snug-octopus', 'agile-octopus', 'octopus-tracker', 'flexible-octopus', 'fixed-octopus', 'outgoing-octopus'];
+  const glance = order.map((id) => {
+    const t = T[id];
+    const name = t.page ? `<a href="${t.page}">${esc(t.name)}</a>` : `<a href="${t.official}" rel="noopener" target="_blank">${esc(t.name)}</a>`;
+    return `<tr><th scope="row">${name}</th><td data-label="How it works"><span>${esc(t.rates)}</span></td><td data-label="Contract"><span>${esc(t.contract)}</span></td><td data-label="You need"><span>${esc(t.needs.join('; ') || 'Nothing extra')}</span></td></tr>`;
+  }).join('\n          ');
+  return head({ base, path, title, description, ld }) + `
+<header class="hero">
+  <div class="hero-inner">${brand([['Plunge Radar', '/'], ['Octopus tariffs', `/${SECTION}/`], ['Tariff finder', null]])}
+    <h1>Which Octopus Energy tariff is right for your home?</h1>
+    <p class="hero-lede">Octopus Energy has a tariff for almost every kind of home: electric cars, heat pumps, solar panels, batteries, storage heaters, or none of these. Answer seven quick questions and the tariff finder matches you to one, using Octopus Energy's own recommendations.</p>
+    <div class="hero-cta ref-only">
+      ${cta('hero', `Join Octopus Energy <span class="badge"><span class="reward">£50</span> credit</span>`)}
+      ${heroFine}
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card quiz finder" id="finder" aria-labelledby="finder-h">
+    <h2 id="finder-h">Tell us about your home</h2>
+    <form id="finder-form" novalidate>${q(1, 'ev', 'Do you charge an electric car at home?', 'Octopus Energy lists the cars and chargers that work with Intelligent Octopus Go on its website.', [['compatible', 'Yes, and it works with Intelligent Octopus Go'], ['unsure', 'Yes, not sure if it works with it'], ['incompatible', 'Yes, but it doesn\'t work with it'], ['none', 'No']])}${q(2, 'heat', 'How do you heat your home?', '', [['heatpump', 'Heat pump'], ['electric', 'Electric boiler or electric radiators'], ['storage', 'Storage heaters'], ['gas', 'Gas boiler'], ['other', 'Something else']])}${q(3, 'solar', 'Do you have solar panels?', '', [['battery', 'Yes, with a home battery'], ['panels', 'Yes, without a battery'], ['none', 'No']])}${q(4, 'home', 'Is someone usually at home during the day?', 'For example, working from home, retired or looking after children.', [['allday', 'Yes, most days'], ['some', 'Some days'], ['out', 'No, the home is usually empty']])}${q(5, 'shift', 'How much of your electricity use could you move to cheaper times?', 'Things like washing, the dishwasher, or charging on a timer.', [['lot', 'A lot'], ['some', 'Some'], ['little', 'Very little']])}${q(6, 'price', 'What matters more to you?', '', [['certain', 'Knowing exactly what I\'ll pay'], ['market', 'Paying less when wholesale prices fall'], ['either', 'No strong view']])}${q(7, 'meter', 'Do you have a smart meter?', '', [['smart', 'Yes'], ['none', 'No'], ['unsure', 'Not sure']])}
+      <button type="submit" class="btn-secondary quiz-go">Find my tariff</button>
+      <p class="hint" id="finder-msg" role="status" aria-live="polite"></p>
+    </form>
+    <div class="quiz-result finder-result" id="finder-result" tabindex="-1" hidden>
+      <p class="qr-k">Octopus Energy's recommendation for a home like yours</p>
+      <p class="qr-name" id="fr-name"></p>
+      <p class="fr-what" id="fr-what"></p>
+      <div class="fr-why" id="fr-why"></div>
+      <dl class="factlist fr-facts" id="fr-facts"></dl>
+      <div id="fr-export" hidden></div>
+      <div id="fr-addon" hidden></div>
+      <div class="fr-notes" id="fr-notes" hidden></div>
+      <div id="fr-alt" hidden></div>
+      <div id="fr-gas" hidden></div>
+      <div class="fr-steps" id="fr-steps"></div>
+      <div class="qr-actions ref-only">
+        ${cta('finder', `Join Octopus Energy <span class="badge"><span class="reward">£50</span> credit</span>`)}
+        <a class="qr-more" id="fr-more" href="/${SECTION}/">Read about this tariff</a>
+      </div>
+      <p class="fine-quiz">Referral link: you and we each get <span class="reward">£50</span> credit. You join Octopus Energy first, then choose this tariff in your account. Plunge Radar is independent of Octopus Energy. This is a guide, not advice: check the rates for your postcode with Octopus Energy before you switch.</p>
+    </div>
+  </section>
+
+  ${regionPicker(PR, k)}
+
+  <section class="card compare" aria-labelledby="picks-h">
+    <h2 id="picks-h">How the finder decides</h2>
+    <p class="lead">These are Octopus Energy's own picks for most homes, from its guide to choosing a smart tariff. Without an electric car that works with Intelligent Octopus Go, the finder also uses the "Choose this tariff if" lists on Octopus Energy's tariffs page, for example Octopus Go, Cosy Octopus or Snug Octopus.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Your home has</th><th>Octopus Energy's pick</th></tr></thead>
+        <tbody>
+          ${picks}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Source: <a href="https://octopus.energy/blog/which-smart-tariff/" rel="noopener" target="_blank">Which smart tariff should I choose?</a> and <a href="https://octopus.energy/tariffs/" rel="noopener" target="_blank">Octopus Energy tariffs</a>, checked on 20 October 2026.</p>
+  </section>
+
+  <section class="card compare tariffs-table" aria-labelledby="all-h">
+    <h2 id="all-h">Octopus Energy home tariffs at a glance</h2>
+    <p class="lead">What each tariff charges, how long it lasts and what you need to join. Smart tariffs need a smart meter Octopus Energy can read.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Tariff</th><th>How it works</th><th>Contract</th><th>You need</th></tr></thead>
+        <tbody>
+          ${glance}
+        </tbody>
+      </table>
+    </div>
+  </section>
+${switchSection('your new tariff', '<b>Choose your tariff.</b> Once your supply has moved and Octopus Energy can read your smart meter (usually around 14 days), sign up for your tariff from its page on Octopus Energy\'s website or in your account. Export tariffs and Octopus Flux take longer, because your network operator has to create an export MPAN.', ref)}
+${faqSection('faq-h', 'Choosing an Octopus Energy tariff for your home: common questions', faqs)}
+${otherTariffs('')}
+${footer(cap)}` + tail(S, 'tariff-finder', ['finder-rules.js']);
+}
+
+
 // ---- Electric car charging cost ------------------------------------------------
 
 const pounds = (n) => (n === null || Number.isNaN(n) ? '–' : '£' + Math.round(n).toLocaleString('en-GB'));
@@ -513,7 +638,7 @@ function evPage({ S, k, base, cap, ref, PR }) {
     return `<tr${key === k ? ' class="is-current"' : ''} data-region="${key}"><th scope="row">${esc(PR.REGIONS[key].name)}</th><td class="p" data-label="Intelligent Octopus Go"><span>${pounds(evCost(miles, kwhPerMile, r.goNight))}</span></td><td class="p" data-label="Flexible Octopus"><span>${pounds(evCost(miles, kwhPerMile, r.flexUnit))}</span></td><td class="p" data-label="Day rate on Go"><span>${p1(r.goDay)}</span></td></tr>`;
   }).join('\n          ');
   const faqs = [
-    ['How much does it cost to charge an electric car at home?', `It depends on your tariff and how far you drive. Octopus Energy's own example: driving 7,000 miles a year at the UK average of 0.301 kWh per mile, smart charging at Intelligent Octopus Go's 7.6p per kWh, costs about £160 a year. On Flexible Octopus ${S.regions[k].inRegion}, at ${S.regions[k].flexUnit} per kWh, the same charging costs about ${pounds(evCost(miles, kwhPerMile, R.flexUnit))}.`],
+    ['How much does it cost to charge an electric car at home?', `It depends on your tariff and how far you drive. For example, driving 7,000 miles a year at 0.301 kWh per mile and smart charging at Intelligent Octopus Go's cheap rate of ${S.regions[k].goNight} per kWh ${S.regions[k].inRegion} costs about ${pounds(evCost(miles, kwhPerMile, R.goNight))} a year. On Flexible Octopus, at ${S.regions[k].flexUnit} per kWh, the same charging costs about ${pounds(evCost(miles, kwhPerMile, R.flexUnit))}.`],
     ['What counts as the cheap rate on Intelligent Octopus Go?', 'Your whole home gets the cheap rate from 11:30pm to 5:30am every night. Your first 6 hours of smart charging each day are also billed at the cheap rate, whenever Octopus Energy schedules them. Bump charges and charging Octopus Energy hasn\'t scheduled are billed at the day rate.'],
     ['Does Intelligent Octopus Go work with my car?', 'Octopus Energy says it works with over 280 cars and selected chargers. Check yours on its Intelligent Octopus Go page. If your car or charger isn\'t supported, Octopus Energy suggests its Octopus Go tariff instead.'],
     ['I don\'t have a home charger. Can I still use it?', 'You need a compatible car or charging system. Octopus Energy says its engineers can install a charger for you.'],
@@ -547,7 +672,7 @@ function evPage({ S, k, base, cap, ref, PR }) {
 
   <section class="card calc ev-calc" id="ev" aria-labelledby="ev-h">
     <h2 id="ev-h">Work out your own costs</h2>
-    <p class="calc-intro">Uses Octopus Energy's current rates <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span> for paying by Direct Debit. The starting figures are Octopus Energy's own example: 7,000 miles a year at the UK average of 0.301 kWh per mile.</p>
+    <p class="calc-intro">Uses Octopus Energy's current rates <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span> for paying by Direct Debit. The starting figures are an example, 7,000 miles a year at 0.301 kWh per mile: change them to match your car.</p>
     <form class="calc-form" id="ev-form" novalidate>
       <div class="field">
         <label for="ev-miles">Miles you drive a year</label>
@@ -583,7 +708,7 @@ function evPage({ S, k, base, cap, ref, PR }) {
       </div>
     </form>
     <div class="calc-out" id="ev-out" aria-live="polite"></div>
-    <p class="fine-calc">An illustration, not a quote. It uses unit rates and standing charges only, assumes your smart charging stays within 6 hours a day as Octopus Energy's own example does, and can't predict future prices. Intelligent Octopus Go rates are fixed for 12 months; Flexible Octopus prices change every three months.</p>
+    <p class="fine-calc">An illustration, not a quote. It uses unit rates and standing charges only, assumes your smart charging stays within the 6 hours a day that Octopus Energy bills at the cheap rate, and can't predict future prices. Intelligent Octopus Go rates are fixed for 12 months; Flexible Octopus prices change every three months.</p>
   </section>
 
   <section class="card compare ev-table" aria-labelledby="evt-h">
@@ -611,7 +736,7 @@ ${otherTariffs('')}
 ${footer(cap)}` + tail(S, 'ev-charging');
 }
 
-/** Writes the hub, the four tariff pages and the electric car page. Returns their URLs for the sitemap. */
+/** Writes the hub, the four tariff pages, the tariff finder and the electric car page. Returns their URLs for the sitemap. */
 export async function buildTariffPages({ outDir, base, PR, cfg, tariffs, dataset, history, today }) {
   const S = tariffSummary({ tariffs, dataset, history, today, PR });
   const k = PR.REGIONS[cfg?.defaultRegion] ? cfg.defaultRegion : DEFAULT_REGION;
@@ -628,6 +753,9 @@ export async function buildTariffPages({ outDir, base, PR, cfg, tariffs, dataset
     await writeFile(join(outDir, SECTION, p.slug, 'index.html'), fill(tariffPage({ p, S, k, base, cap, ref, PR })));
     urls.push(`${base}/${SECTION}/${p.slug}/`);
   }
+  await mkdir(join(outDir, FINDER_PATH), { recursive: true });
+  await writeFile(join(outDir, FINDER_PATH, 'index.html'), fill(finderPage({ S, k, base, cap, ref, PR })));
+  urls.push(`${base}/${FINDER_PATH}`);
   await mkdir(join(outDir, EV_PATH), { recursive: true });
   await writeFile(join(outDir, EV_PATH, 'index.html'), fill(evPage({ S, k, base, cap, ref, PR })));
   urls.push(`${base}/${EV_PATH}`);

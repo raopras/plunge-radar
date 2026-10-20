@@ -1,5 +1,7 @@
 # Octopus tariff guide: facts sheet
 
+**20 Oct 2026 update:** Octopus Energy launched "Intelligent Octopus Go 12M Fixed October 2026 v2" (API: IOG-SMB-FIX-12M-26-10-14). Its page now says "Smart charge eligible cars from only 8p/kWh" and "Get 6 hours of smart charging for just 8p/kWh, plus six hours every night between 23:30 - 05:30 for your home". The 7.6p figures and the "7,000 miles ... £160" example below are no longer on the page: the site no longer states them, and the electric car calculator labels 7,000 miles at 0.301 kWh per mile as an example (its rates come from the API). Octopus Energy's smart tariff guide (which-smart-tariff, updated 20 Oct 2026) still says "from 7.6p/kWh"; because the two pages disagree, the finder quotes the product page and the live API rate.
+
 Checked word for word against each official page on 13 October 2026, in a browser (not a summary). Every claim on the site (home, region, tariff and disclaimer pages) comes from this list.
 Rates are for paying by monthly Direct Debit. There's no VAT on electricity from 1 Oct 2026 to 31 Mar 2027:
 the API now shows the same value with and without VAT (Tracker days before 1 October included 5%).
@@ -59,3 +61,39 @@ the API now shows the same value with and without VAT (Tracker days before 1 Oct
 - https://octopus.energy/tariffs/
 - https://octopus.energy/blog/octopus-referrals/
 - https://api.octopus.energy/v1/products/ (and each product's detail and unit-rate endpoints)
+
+## Tariff finder (/octopus-tariffs/tariff-finder/, added 20 Oct 2026)
+
+Rules and facts live in `site/finder-rules.js`; `test/finder.test.mjs` checks the picks below. All read word for word in Chrome on 20 Oct 2026.
+
+### Octopus Energy's picks (octopus.energy/blog/which-smart-tariff/, "Updated on 20th October 2026")
+- Table "Your tech → Smart pick": Solar panels → Outgoing Octopus; Solar + battery → Flux; Solar + battery + heat pump → Flux; Heat pump → Cosy Octopus; EV → Intelligent Octopus Go; Heat pump + EV → Intelligent Octopus Go; EV + solar + battery → Intelligent Octopus Go + Outgoing + Charge Pack; Heat pump + EV + solar + battery → Intelligent Octopus Go + Outgoing + Charge Pack; No smart tech → Agile or Tracker.
+- EV: "Works if: Your car or charger is compatible ... If it isn't yet, Octopus Go is the next best option."
+- Heat pump or electric boiler: "Works if: You have a heat pump, electric radiators or an electric boiler (they don't need to have been installed by us)."
+- Solar without battery: Outgoing Octopus "Pays a flat 12p/kWh"; "When it comes to pulling energy from the grid, your options are exactly the same as anyone else's."
+- No smart tech: "Agile is generally worth it if you can shift your power use to less busy times of day, for example if you work from home and can put the laundry on in the middle of the day. Tracker may be a good idea if you want to track the wholesale market ... but don't want to think about your energy use on a half-hourly basis."
+- Heat pump + EV: "Intelligent Octopus Go is usually the cheapest option" because "your whole house benefits from the low overnight rates (11:30pm to 05:30am)".
+- Charge Pack: "we'll take care of your battery charging and exporting plus you'll make at least £12 a month"; "You can join Charge Pack if you have a smart meter and a supported battery."
+- Smart meter: "you must have a working smart meter that sends half-hourly readings"; "You can request a smart meter here (it's free!)".
+- **Not used:** the 7.6p figure (the product page now says 8p); the modelling assumptions (2,700 kWh etc.).
+
+### Octopus Energy tariffs page (octopus.energy/tariffs/)
+- Flexible: "prices will rise or fall every three months"; choose if you "Might want to change your mind (Flexible has no exit fees)" or "Don't think a smart tariff is right for you".
+- Fixed: "Your price won't change for 12 or 18 months"; choose if you "Value certainty in your budget"; "exit fees might apply".
+- Gas tariffs listed: Flexible Octopus, Fixed Octopus, Octopus Tracker.
+- Smart tariffs: "You'll need a smart meter for any of these options". Cosy: "A heat pump" and "No Intelligent Octopus Go-compatible EV (if you do, IOGo will probably be cheaper)". Flux: "Solar panels and a home battery" and the same EV note. Octopus Go: "An EV or charger that isn't compatible with IOGo". Agile: "Can shift a big chunk of your energy use to less busy times of the day (great if you WFH or have a home battery)". Tracker: "Can use energy flexibly, cutting down on pricey days, using more on cheap days". Snug: "Storage heaters" and "A compatible second-generation smart meter".
+- Exit fees (help article "Why do some fixed tariffs have exit fees?"): "If there's an exit fee, it will be clearly stated before you switch"; Flexible "remains a 'no-string' plan with zero exit fees".
+
+### Tariff pages
+- Octopus Go (/smart/go/): "super cheap electricity between 00:30 - 05:30 every night"; "Compatible with all EVs and chargers"; "You don't need a home EV charger to join"; "we're only offering fixed rates at the moment. This tariff has a £50 early exit fee"; "you can only pair Octopus Go with certain export tariffs".
+- Cosy Octopus (/smart/cosy-octopus/): "Three cosy periods of super cheap rates between 04:00 - 07:00, 13:00 - 16:00 and 22:00 - 00:00 every day, 51% cheaper than the Day rate in your region"; "A peak rate between 16:00 - 19:00, 50% above the Day rate"; fixed version "£50 early exit fee"; "flexible and fixed versions"; "electricity only"; heat pump "doesn't need to have been installed by us".
+- Octopus Flux (/smart/flux/): "Super cheap rates between 02:00 - 05:00 every day"; "A peak rate between 16:00 - 19:00, the optimum time to discharge your battery and export"; "Works with all solar and battery systems"; "flexible tariff ... no exit fees or tie-ins"; join Flexible Octopus and Outgoing Octopus first; "We'll need a copy of the MCS document"; Export MPAN ("we can apply for one for you"); "you'll need to manually schedule your battery ... If you want us to control your battery for you (and you have a compatible battery), check out Intelligent Octopus Flux."
+- Snug Octopus (/smart/snug-octopus/): "off-peak rate of 9.5p/kWh" between 00:30 and 06:30, during smart charging and the one-hour afternoon boost; "variable tariff"; needs storage heaters controlled by the smart meter and a SMETS2 meter, "not all are compatible"; must "be the Octopus account holder and live at the property"; "You can be on Snug Octopus at the same time as Octopus Outgoing".
+- Outgoing Octopus (/smart/outgoing/): "12p per kWh for every unit you export", variable; Prime Outgoing "16p per kWh" 4pm-7pm and "9p per kWh the rest of the day", for solar and battery, 12-month term, no exit fees; Agile Outgoing half-hourly, uncapped, "for those with energy storage", 12-month term, no exit fees; export MPAN from the DNO "1-4 weeks"; needs half-hourly export data; FiT started in the last 12 months can't switch yet.
+- Agile (/smart/agile/, rechecked): "best suited to customers who can shift large amounts of their energy use"; "Perfect for electric vehicles, storage heaters, or anyone who can shift their electricity use outside of peak times"; winter warning unchanged.
+- Smart meter types (every smart tariff page): "you need either a second generation SMETS2, or a SMETS1 made by Secure"; connection "generally takes us around 14 days".
+
+### How the finder applies them
+- Electric car first (compatible or unsure → Intelligent Octopus Go; not compatible → Octopus Go, with Cosy/Flux/Snug as alternatives per the tariffs page), then solar + battery → Flux, heat pump/electric boiler/radiators → Cosy, storage heaters → Snug, otherwise Octopus Energy's no-tech advice: Agile (shift a lot and someone home in the day), Tracker (some flexibility), Flexible (little flexibility or no smart meter), Fixed (wants certainty).
+- Solar panels add Outgoing Octopus for export; a battery with an electric car adds Charge Pack.
+- Results only show live rates for the four tariffs the site fetches from the API (Agile, Intelligent Octopus Go, Tracker, Flexible).

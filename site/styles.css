@@ -382,3 +382,21 @@ svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; 
 .ev-table th, .ev-table td { padding-inline: 6px; }
 .ev-table th[scope="row"] { font: 600 0.88rem var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink); }
 @media (max-width: 520px) { .ev-table th, .ev-table td { font-size: 0.8rem; } .ev-table thead th { font-size: 0.66rem; letter-spacing: 0.02em; } }
+
+/* Tariff finder */
+.finder legend { display: flex; gap: 10px; align-items: baseline; }
+.fq-n { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--cta); color: var(--cta-ink); font: 800 0.85rem var(--font-display); }
+.finder fieldset .hint { margin-top: -4px; }
+.finder fieldset.is-missing legend { color: var(--accent); }
+.finder fieldset.is-missing .q-opts label { border-color: var(--accent); }
+.finder-result { gap: 12px; }
+.finder-result:focus { outline: none; }
+.fr-what { font-weight: 600; max-width: 65ch; }
+.fr-why { display: grid; gap: 6px; }
+.fr-why p { max-width: 65ch; }
+.fr-facts { margin: 0; }
+.fr-mini, .fr-alt, .fr-notes, .fr-steps { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.fr-mini-k { font: 700 0.75rem var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.fr-mini-name { font: 800 1.15rem var(--font-display); }
+.fr-mini-name a, .fr-alt a { color: var(--accent); }
+.fr-notes ul, .fr-alt ul, .fr-steps ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 65ch; }
