@@ -94,3 +94,9 @@ What failed on 12–13 Oct: a test read the live archive in `site/data`, broke a
 ## Tradedoubler (added 19 Oct 2026)
 
 - Site ID 3503369. `site/3503369.html` is an intentionally empty file that proves site ownership to Tradedoubler. Keep it while the site is in their network. The SEO audit only walks `index.html` pages, so it ignores this file.
+
+## Tariff finder (/octopus-tariffs/tariff-finder/, added 20 Oct 2026)
+
+- Seven questions (electric car and Intelligent Octopus Go compatibility, heating, solar/battery, someone home in the day, flexibility, price certainty, smart meter). Rules and tariff facts in `site/finder-rules.js` (loaded on that page only, before `tariffs.js`; also imported by `tariff-pages.mjs` for the glance table). UI in `tariffs.js` (`setupFinder`), Umami event `tariff-finder`.
+- Picks follow Octopus Energy's smart tariff guide (octopus.energy/blog/which-smart-tariff/) and the tariffs page; `test/finder.test.mjs` checks Octopus Energy's table and all 1,620 answer combinations. When Octopus Energy changes that guide, update the rules, the table on the page and the test together.
+- Intelligent Octopus Go is now 8p/kWh (October 2026 v2, IOG-SMB-FIX-12M-26-10-14); the old 7.6p/£160 example is gone from Octopus Energy's page, so the EV calculator calls 7,000 miles at 0.301 kWh/mile an example.
