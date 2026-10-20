@@ -175,9 +175,14 @@
     var smartPick = T[r.main].smart || (r.exportTariff && T[r.exportTariff].smart);
     r.needsMeter = Boolean(smartPick) && a.meter !== 'smart';
     if (r.needsMeter) {
-      r.notes.unshift(a.meter === 'none'
-        ? 'You\'ll need a smart meter for this tariff. Octopus Energy says it installs one at no extra cost: join on Flexible Octopus, get the smart meter fitted, then switch.'
-        : 'This tariff needs a smart meter Octopus Energy can read: a second-generation (SMETS2) meter, or a first-generation (SMETS1) meter made by Secure. Your current supplier can tell you which you have.');
+      var exportOnly = !T[r.main].smart;
+      var which = exportOnly ? T[r.exportTariff].name : T[r.main].name;
+      var note;
+      if (exportOnly) note = which + ' needs a smart meter that sends half-hourly export data.' + (a.meter === 'none' ? ' Octopus Energy says it installs smart meters at no extra cost.' : ' Octopus Energy says this includes almost all SMETS2 meters and most SMETS1 meters.');
+      else if (a.meter === 'none') note = which + ' needs a smart meter. Octopus Energy says it installs one at no extra cost: join on Flexible Octopus, get the smart meter fitted, then switch.';
+      else if (r.main === 'snug-octopus') note = null; // the Snug note below covers its SMETS2 rule
+      else note = which + ' needs a smart meter Octopus Energy can read: a second-generation (SMETS2) meter, or a first-generation (SMETS1) meter made by Secure. Your current supplier can tell you which you have.';
+      if (note) r.notes.unshift(note);
     }
     if (r.alt.indexOf(r.main) !== -1) r.alt.splice(r.alt.indexOf(r.main), 1);
     r.alt = r.alt.filter(function (x, i, arr) { return x && arr.indexOf(x) === i; }).slice(0, 2);

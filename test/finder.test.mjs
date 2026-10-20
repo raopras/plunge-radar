@@ -86,3 +86,13 @@ test('tariff names are written the way Octopus Energy writes them', () => {
   const text = JSON.stringify(TARIFFS) + JSON.stringify(recommend({ ...base, shift: 'lot', home: 'allday' }));
   assert.doesNotMatch(text, /Octopus Agile|Octopus Intelligent Go|Tracker Octopus|Octopus Flexible|Octopus Cosy|Octopus Snug/);
 });
+
+test('smart meter notes name the right tariff and never contradict Snug Octopus', () => {
+  const flexSolar = pick({ meter: 'none', solar: 'panels', shift: 'little' });
+  assert.equal(flexSolar.main, 'flexible-octopus');
+  assert.ok(flexSolar.notes[0].startsWith('Outgoing Octopus needs a smart meter'));
+  const snug = pick({ heat: 'storage', meter: 'unsure' });
+  assert.ok(!snug.notes.some((n) => /SMETS1/.test(n)), 'Snug needs SMETS2, so no SMETS1 note');
+  assert.ok(snug.notes.some((n) => /SMETS2/.test(n)));
+  assert.ok(pick({ heat: 'heatpump', meter: 'none' }).notes[0].startsWith('Cosy Octopus needs a smart meter'));
+});
