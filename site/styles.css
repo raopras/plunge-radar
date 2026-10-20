@@ -400,3 +400,7 @@ svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; 
 .fr-mini-name { font: 800 1.15rem var(--font-display); }
 .fr-mini-name a, .fr-alt a { color: var(--accent); }
 .fr-notes ul, .fr-alt ul, .fr-steps ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 65ch; }
+.fq-sub { display: grid; gap: 6px; margin-top: 6px; padding: 12px; border-radius: 10px; background: var(--bg); border: 1px dashed var(--line); }
+.fq-sub label { font-weight: 600; font-size: 0.93rem; }
+.fq-sub input { width: 100%; max-width: 14rem; min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 10px; font: inherit; background: var(--surface); color: var(--ink); }
+.fq-sub input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

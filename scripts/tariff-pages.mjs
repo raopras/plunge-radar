@@ -527,11 +527,17 @@ function finderPage({ S, k, base, cap, ref, PR }) {
     { '@context': 'https://schema.org', '@type': 'WebPage', name: title, url, description, inLanguage: 'en-GB' },
     { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
   ];
-  const q = (n, name, legend, hint, options) => `
+  const q = (n, name, legend, hint, options, extra = '') => `
       <fieldset id="fq-${name}">
         <legend><span class="fq-n">${n}</span> ${esc(legend)}</legend>${hint ? `\n        <p class="hint">${hint}</p>` : ''}
-        <div class="q-opts">${options.map(([val, label]) => `<label><input type="radio" name="${name}" value="${val}"> <span>${esc(label)}</span></label>`).join('')}</div>
+        <div class="q-opts">${options.map(([val, label]) => `<label><input type="radio" name="${name}" value="${val}"> <span>${esc(label)}</span></label>`).join('')}</div>${extra}
       </fieldset>`;
+  const milesBox = `
+        <div class="fq-sub" id="fq-miles" hidden>
+          <label for="f-miles">Optional: about how many miles do you drive a year?</label>
+          <input id="f-miles" name="miles" type="number" inputmode="numeric" min="500" max="50000" step="100" placeholder="For example, 7000">
+          <p class="hint">We use this to estimate your charging cost. It doesn't change the recommendation.</p>
+        </div>`;
   const picks = [
     ['Solar panels', 'Outgoing Octopus (export)'], ['Solar panels and a battery', 'Octopus Flux'], ['Solar panels, a battery and a heat pump', 'Octopus Flux'],
     ['Heat pump', 'Cosy Octopus'], ['Electric car', 'Intelligent Octopus Go'], ['Heat pump and an electric car', 'Intelligent Octopus Go'],
@@ -559,7 +565,7 @@ function finderPage({ S, k, base, cap, ref, PR }) {
 <main class="wrap">
   <section class="card quiz finder" id="finder" aria-labelledby="finder-h">
     <h2 id="finder-h">Tell us about your home</h2>
-    <form id="finder-form" novalidate>${q(1, 'ev', 'Do you charge an electric car at home?', 'Not sure? <a href="https://octopus.energy/smart/intelligent-octopus-go/" rel="noopener" target="_blank">Check your car or charger on Octopus Energy\'s Intelligent Octopus Go page</a>: choose your car and charger under "Check you\'re eligible to start your switch".', [['compatible', 'Yes, and it works with Intelligent Octopus Go'], ['unsure', 'Yes, not sure if it works with it'], ['incompatible', 'Yes, but it doesn\'t work with it'], ['none', 'No']])}${q(2, 'heat', 'How do you heat your home?', '', [['heatpump', 'Heat pump'], ['electric', 'Electric boiler or electric radiators'], ['storage', 'Storage heaters'], ['gas', 'Gas boiler'], ['other', 'Something else']])}${q(3, 'solar', 'Do you have solar panels?', '', [['battery', 'Yes, with a home battery'], ['panels', 'Yes, without a battery'], ['none', 'No']])}${q(4, 'home', 'Is someone usually at home during the day?', esc('For example, working from home, retired or looking after children.'), [['allday', 'Yes, most days'], ['some', 'Some days'], ['out', 'No, the home is usually empty']])}${q(5, 'shift', 'How much of your electricity use could you move to cheaper times?', 'Things like washing, the dishwasher, or charging on a timer. Octopus Energy\'s peak is usually <b>4pm to 7pm</b>: Agile Octopus is usually most expensive then, and Cosy Octopus and Octopus Flux charge a peak rate.', [['lot', 'A lot'], ['some', 'Some'], ['little', 'Very little']])}${q(6, 'price', 'What matters more to you?', '', [['certain', 'Knowing exactly what I\'ll pay'], ['market', 'Paying less when wholesale prices fall'], ['either', 'No strong view']])}${q(7, 'meter', 'Do you have a smart meter?', '', [['smart', 'Yes'], ['none', 'No'], ['unsure', 'Not sure']])}
+    <form id="finder-form" novalidate>${q(1, 'ev', 'Do you charge an electric car at home?', 'Not sure? <a href="https://octopus.energy/smart/intelligent-octopus-go/" rel="noopener" target="_blank">Check your car or charger on Octopus Energy\'s Intelligent Octopus Go page</a>: choose your car and charger under "Check you\'re eligible to start your switch".', [['compatible', 'Yes, and it works with Intelligent Octopus Go'], ['unsure', 'Yes, not sure if it works with it'], ['incompatible', 'Yes, but it doesn\'t work with it'], ['none', 'No']], milesBox)}${q(2, 'heat', 'How do you heat your home?', '', [['heatpump', 'Heat pump'], ['electric', 'Electric boiler or electric radiators'], ['storage', 'Storage heaters'], ['gas', 'Gas boiler'], ['other', 'Something else']])}${q(3, 'solar', 'Do you have solar panels?', '', [['battery', 'Yes, with a home battery'], ['panels', 'Yes, without a battery'], ['none', 'No']])}${q(4, 'home', 'Is someone usually at home during the day?', esc('For example, working from home, retired or looking after children.'), [['allday', 'Yes, most days'], ['some', 'Some days'], ['out', 'No, the home is usually empty']])}${q(5, 'shift', 'How much of your electricity use could you move to cheaper times?', 'Things like washing, the dishwasher, or charging on a timer. Octopus Energy\'s peak is usually <b>4pm to 7pm</b>.', [['lot', 'A lot'], ['some', 'Some'], ['little', 'Very little']])}${q(6, 'price', 'What matters more to you?', '', [['certain', 'Knowing exactly what I\'ll pay'], ['market', 'Paying less when wholesale prices fall'], ['either', 'No strong view']])}${q(7, 'meter', 'Do you have a smart meter?', '', [['smart', 'Yes'], ['none', 'No'], ['unsure', 'Not sure']])}
       <button type="submit" class="btn-secondary quiz-go">Find my tariff</button>
       <p class="hint" id="finder-msg" role="status" aria-live="polite"></p>
     </form>
@@ -569,6 +575,7 @@ function finderPage({ S, k, base, cap, ref, PR }) {
       <p class="fr-what" id="fr-what"></p>
       <div class="fr-why" id="fr-why"></div>
       <dl class="factlist fr-facts" id="fr-facts"></dl>
+      <div id="fr-ev" hidden></div>
       <div id="fr-export" hidden></div>
       <div id="fr-addon" hidden></div>
       <div class="fr-notes" id="fr-notes" hidden></div>

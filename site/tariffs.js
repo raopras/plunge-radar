@@ -221,6 +221,21 @@
       if (!f[1]) return;
       var row = el('div'); row.appendChild(el('dt', '', f[0])); row.appendChild(el('dd', '', f[1])); facts.appendChild(row);
     });
+    var evBox = $('fr-ev'); evBox.textContent = '';
+    var isEv = r.main === 'intelligent-octopus-go' || r.main === 'octopus-go';
+    if (isEv) {
+      evBox.className = 'fr-mini';
+      evBox.appendChild(el('p', 'fr-mini-k', 'Charging your car'));
+      var raw = d.raw || {};
+      if (a.miles && r.main === 'intelligent-octopus-go' && raw.goNight != null && raw.flexUnit != null) {
+        var kwh = a.miles * 0.301;
+        para(evBox, 'Driving ' + a.miles.toLocaleString('en-GB') + ' miles a year at 0.301 kWh per mile (about ' + Math.round(kwh).toLocaleString('en-GB') + ' kWh) costs about ' + gbp(kwh * raw.goNight / 100) + ' a year at Intelligent Octopus Go\'s cheap rate ' + d.inRegion + ', against ' + gbp(kwh * raw.flexUnit / 100) + ' on Flexible Octopus. This assumes all your charging is smart charging within the 6 cheap hours a day, and 0.301 kWh per mile is an example: your car may use more or less.');
+      }
+      var calc = el('a', '', a.miles ? 'See your whole bill with the charging cost calculator' : 'Work out your charging cost with the calculator');
+      calc.href = '/electric-car-charging-cost/' + (a.miles ? '?miles=' + a.miles : '');
+      var cp = el('p'); cp.appendChild(calc); evBox.appendChild(cp);
+      evBox.hidden = false;
+    } else evBox.hidden = true;
     var ex = $('fr-export');
     if (r.exportTariff) miniCard(ex, 'For the power you export', T[r.exportTariff], T[r.exportTariff].rates); else ex.hidden = true;
     var add = $('fr-addon');
@@ -283,11 +298,16 @@
         return;
       }
       $('finder-msg').textContent = '';
+      var mi = parseFloat(($('f-miles') || {}).value);
+      if (a.ev !== 'none' && !isNaN(mi) && mi > 0) { a.miles = Math.round(Math.min(50000, Math.max(500, mi))); $('f-miles').value = a.miles; }
       finderAnswers = a;
       var r = showFinder(a, true);
-      if (r) track('tariff-finder', { result: r.main, export: r.exportTariff || '', ev: a.ev, heat: a.heat, solar: a.solar, home: a.home, shift: a.shift, price: a.price, meter: a.meter, region: region || '' });
+      if (r) track('tariff-finder', { result: r.main, export: r.exportTariff || '', miles: a.miles ? (a.miles < 5000 ? 'under-5k' : a.miles < 10000 ? '5-10k' : '10k-plus') : '', ev: a.ev, heat: a.heat, solar: a.solar, home: a.home, shift: a.shift, price: a.price, meter: a.meter, region: region || '' });
     });
-    form.addEventListener('change', function (e) { var fs = e.target.closest('fieldset'); if (fs) fs.classList.remove('is-missing'); });
+    form.addEventListener('change', function (e) {
+      var fs = e.target.closest('fieldset'); if (fs) fs.classList.remove('is-missing');
+      if (e.target.name === 'ev') $('fq-miles').hidden = e.target.value === 'none';
+    });
   }
 
 
@@ -332,6 +352,8 @@
   function setupEv() {
     var form = $('ev-form');
     if (!form) return;
+    var qm = parseFloat((location.search.match(/[?&]miles=(\d+)/) || [])[1]);
+    if (!isNaN(qm)) $('ev-miles').value = Math.min(50000, Math.max(500, qm));
     form.addEventListener('submit', function (e) { e.preventDefault(); });
     form.addEventListener('input', renderEv);
     form.addEventListener('change', function (e) {
