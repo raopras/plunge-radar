@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -33,7 +34,7 @@ function mockApi() {
   return new Promise((r) => server.listen(0, () => r({ server, base: `http://localhost:${server.address().port}/v1`, calls: () => rateCalls })));
 }
 
-test('backfill fills missing days once, then makes no calls; build writes calculator history', async () => {
+test('backfill fills missing days once, then makes no calls; build no longer writes calculator history', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'plunge-hist-'));
   const siteDir = join(tmp, 'site');
   // Never use the live data in site/data: it changes every day, so tests would drift.
@@ -56,11 +57,11 @@ test('backfill fills missing days once, then makes no calls; build writes calcul
 
     const outDir = join(tmp, 'out');
     await build({ siteDir, outDir, now, siteUrl: 'https://plungeradar.co.uk', log: () => {} });
-    const h = JSON.parse(await readFile(join(outDir, 'data', 'history', 'C.json'), 'utf8'));
-    assert.equal(h.capFrom, '2026-10-01');
-    assert.ok(h.days.length >= 12 && h.days.every((d) => d.d >= '2026-10-01' && d.p.length >= 46));
+    assert.ok(!existsSync(join(outDir, 'data', 'history')), 'no calculator history files');
+    const london = await readFile(join(outDir, 'london', 'index.html'), 'utf8');
+    assert.ok(!london.includes('Would Agile have saved you money'), 'calculator removed from region pages');
     const home = await readFile(join(outDir, 'index.html'), 'utf8');
-    assert.ok(home.includes('id="calc"') && home.includes('id="hero-answer"') && home.includes('id="cap-note"'));
+    assert.ok(!home.includes('id="calc"') && home.includes('id="hero-answer"') && home.includes('id="cap-note"'));
     assert.ok(!home.includes('include 5% VAT'), 'VAT wording updated');
   } finally { server.close(); }
 });

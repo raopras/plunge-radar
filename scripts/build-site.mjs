@@ -65,29 +65,6 @@ function dayStats(prices) {
   };
 }
 
-/**
- * Per-region price history for the savings calculator: every archived day since the
- * start of the current price cap period, written to data/history/<letter>.json.
- */
-async function writeCalculatorHistory(siteDir, outDir, PR) {
-  globalThis.window ??= globalThis;
-  await import(pathToFileURL(join(siteDir, 'config.js')).href + `?t=${Date.now()}`);
-  const cap = globalThis.PLUNGE_CONFIG?.priceCap;
-  if (!cap?.from) return 0;
-  const dir = join(siteDir, 'data', 'archive');
-  let files = [];
-  try { files = (await readdir(dir)).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) >= cap.from && f.slice(0, 10) <= cap.to).sort(); } catch { /* none yet */ }
-  const days = [];
-  for (const f of files) { const j = await readJSON(join(dir, f)); if (j?.regions) days.push(j); }
-  await mkdir(join(outDir, 'data', 'history'), { recursive: true });
-  for (const k of Object.keys(PR.REGIONS)) {
-    const list = days.filter((d) => Array.isArray(d.regions[k]) && d.regions[k].every((p) => p !== null))
-      .map((d) => ({ d: d.date, p: d.regions[k] }));
-    await writeFile(join(outDir, 'data', 'history', `${k}.json`), JSON.stringify({ capFrom: cap.from, days: list }) + '\n');
-  }
-  return days.length;
-}
-
 // ---- HTML pieces ------------------------------------------------------------
 
 function compareSection(dataset, dayKey, PR, prefix, current) {
@@ -260,8 +237,10 @@ export async function build({
   await cp(siteDir, outDir, { recursive: true });
 
   const PR = await loadRegions(siteDir);
-  const historyDays = await writeCalculatorHistory(siteDir, outDir, PR);
-  log(`Calculator history: ${historyDays} day(s) since the price cap period began.`);
+  // Load site/config.js (referral link, reward, price cap) for the tariff pages and other builders.
+  globalThis.window ??= globalThis;
+  await import(pathToFileURL(join(siteDir, 'config.js')).href + `?t=${Date.now()}`);
+  if (!globalThis.PLUNGE_CONFIG?.referralUrl) throw new Error('site/config.js did not load a referralUrl');
   const dataset = await readJSON(join(siteDir, 'data', 'latest.json'));
   const template = await readFile(join(siteDir, 'index.html'), 'utf8');
   const history = await loadHistory(siteDir);

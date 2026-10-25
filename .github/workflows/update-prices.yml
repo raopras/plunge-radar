@@ -52,7 +52,7 @@ jobs:
         if: github.event_name != 'schedule'
         run: npm test
 
-      - name: Fill gaps in price history (for the savings calculator)
+      - name: Fill gaps in price history (for the recent-days tables)
         continue-on-error: true
         run: node scripts/backfill-history.mjs
 

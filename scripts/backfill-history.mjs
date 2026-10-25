@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fills gaps in site/data/archive/ so the savings calculator has enough history.
+// Fills gaps in site/data/archive/ so the region pages' recent-days tables have full history.
 //
 // It looks for complete days missing between FROM (default: the start of the current
 // price cap period in site/config.js) and yesterday, then fetches each region's prices

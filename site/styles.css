@@ -287,7 +287,7 @@ svg.bars .cap { stroke: var(--peak); stroke-width: 1.5; stroke-dasharray: 6 4; }
 svg.bars .cap-label { fill: var(--peak); font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
 .legend i.dash { width: 16px; height: 0; border-top: 2px dashed var(--peak); border-radius: 0; background: none; }
 
-/* Savings calculator */
+/* Calculators (the electric car calculator on the tariff pages) */
 .calc { padding: 18px; display: grid; gap: 12px; }
 .calc h2 { margin: 0; }
 .calc-intro { margin: 0; color: var(--muted); max-width: 70ch; }

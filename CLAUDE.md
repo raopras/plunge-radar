@@ -41,12 +41,13 @@ GitHub Action (hourly 15:07–22:07 UTC + 00:07 UTC, on push, or by hand)
 - Click tracking: Umami (cookie-free) events `referral-click` {button: hero|plunge|promo|steps|sticky, region, page} and `postcode-check` {result, region}. Completed switches only show in Pras's Octopus account (referral credits).
 - Installable web app: `manifest.webmanifest`, icons, `sw.js` (network-first). **Bump `CACHE` in `site/sw.js` on every release.**
 
-## Price cap, savings calculator and VAT (added 12 Oct 2026)
+## Price cap and VAT (added 12 Oct 2026)
 
-- `site/config.js` → `priceCap` holds Ofgem's GB-average single-rate Direct Debit cap (unit rate, standing charge, period). **Update it every quarter** (next: from 1 Jan 2027). After `to`, the cap line, cap note and calculator hide themselves rather than show stale figures.
+- `site/config.js` → `priceCap` holds Ofgem's GB-average single-rate Direct Debit cap (unit rate, standing charge, period). **Update it every quarter** (next: from 1 Jan 2027). After `to`, the cap line and cap note hide themselves rather than show stale figures.
 - Regional cap rates sit behind a CAPTCHA on Ofgem's site, so the page uses the GB average and says so.
-- `scripts/backfill-history.mjs` runs in CI before the price fetch (continue-on-error) and fills missing archive days from `priceCap.from`; it makes no API calls once the archive is complete.
-- The build writes `data/history/<region>.json` (days since `priceCap.from`) for the calculator, which replays them against a typical household profile and compares unit costs only.
+- `scripts/backfill-history.mjs` runs in CI before the price fetch (continue-on-error) and fills missing archive days from `priceCap.from` (they feed the region pages' recent-days tables); it makes no API calls once the archive is complete.
+- **Removed 25 Oct 2026 (Pras): the "Would Agile have saved you money?" calculator** on the home and region pages, because he judged it was blocking conversions (it compared past Agile prices with the price cap and could show Agile as dearer). Don't bring back a past-prices savings verdict without asking him. The build no longer writes `data/history/`.
+- The build loads `site/config.js` explicitly near the start (`globalThis.PLUNGE_CONFIG`); the tariff pages need it for the referral link. It used to be loaded as a side effect of the calculator history step.
 - **VAT:** no VAT on electricity from 1 Oct 2026 to 31 Mar 2027. Copy says "including any VAT due". Revisit wording in April 2027.
 
 ## Operations and recovery (added 13 Oct 2026)
@@ -85,7 +86,7 @@ What failed on 12–13 Oct: a test read the live archive in `site/data`, broke a
 
 ## Backlog and ideas
 
-- **Switch Verdict calculator**: replay a household's half-hourly usage against every Octopus tariff ("would Agile have saved you money?"). Targets non-customers, the best converter.
+- ~~Switch Verdict calculator~~: a simple version ("Would Agile have saved you money?") ran 12–25 Oct 2026 and was removed at Pras's request as it seemed to block conversions. Only revisit with his agreement.
 - **Plug & Price**: EV and heat pump running-cost pages by region and tariff.
 - **Move-In Kit**: a white-label page for letting agents (business affiliate route).
 - Daily social posts (Instagram/TikTok) using the share card. Pras must create accounts and approve each public post.
