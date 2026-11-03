@@ -68,6 +68,8 @@ export function tariffSummary({ tariffs, dataset, history, today, PR }) {
       trackerLow30: p1(rates.length ? Math.min(...rates.slice(0, 30).map((r) => r.p)) : null),
       trackerHigh30: p1(rates.length ? Math.max(...rates.slice(0, 30).map((r) => r.p)) : null),
       trackerStanding: p1(t.tracker?.standing),
+      // Newest first: the last 14 published daily prices, for the table on the Tracker page.
+      trackerRecent: (t.tracker?.rates || []).filter((r) => r.d <= today).slice(0, 14).map((r) => [dayLabel(r.d), p1(r.p)]),
       flexUnit: p1(t.flexible?.unit),
       flexStanding: p1(t.flexible?.standing),
       raw: {
@@ -299,10 +301,10 @@ export const PAGES = [
   {
     slug: 'tracker', name: 'Octopus Tracker', short: 'Tracker',
     oneLine: 'One price a day that follows the wholesale market. Use less on pricey days.',
-    title: 'Octopus Tracker Tariff: Daily Prices and Who It Suits',
-    description: 'Octopus Tracker explained: one electricity price a day linked to wholesale costs, today\'s rate for your region, the risks in winter, and how to switch.',
-    h1: 'Octopus Tracker: one electricity price a day, set by the market',
-    lede: 'Octopus Tracker is an electricity tariff from Octopus Energy with one unit price for each day, set from an independently published wholesale market price. You don\'t have to plan around half-hours, but it pays to use less on pricey days.',
+    title: 'Octopus Tracker Prices Today, and How the Tariff Works',
+    description: 'Today\'s Octopus Tracker electricity price for your region, the last 14 days of prices, why they rise in winter, the 100p cap, and how to switch.',
+    h1: 'Octopus Tracker prices: today\'s rate and how the tariff works',
+    lede: 'Octopus Tracker is a tracker tariff from Octopus Energy: your electricity price changes every day, following an independently published wholesale market price. See today\'s price for your region, the last 14 days, and why prices tend to rise in winter.',
     glance: (S, k, cap) => [
       ['How the price works', 'A new price every day, from a published formula'],
       [`Price for ${S.trackerDate}`, `${v(S, k, 'trackerToday')} per kWh`],
@@ -315,41 +317,76 @@ export const PAGES = [
     how: [
       'Each day\'s price is worked out from the previous day\'s wholesale electricity price, using a formula Octopus Energy publishes for each region. For people joining since 1 April 2026, it is the wholesale price multiplied by a regional factor, plus a fixed amount for network and other costs.',
       'Octopus Energy says prices tend to be lower in warmer months, then typically increase, likely double, in colder months. Over a winter, Tracker can cost more than the price cap.',
+      'Octopus Energy offers Tracker for electricity, gas or both. This page covers electricity. The daily price is capped at 100p per kWh for electricity and 30p per kWh for gas, which Octopus Energy says is a lot higher than Ofgem\'s price cap.',
       'The formula and standing charge are fixed for 12 months. You can leave at any time with no exit fee, but if you leave during those 12 months you have to wait 9 months to rejoin.',
     ],
     suits: ['You can use energy flexibly: less on pricey days, more on cheap ones', 'You don\'t mind feeling the market\'s peaks and troughs first', 'You\'d like a simple daily price rather than a half-hourly one'],
     notFor: ['You need predictable bills, especially in winter', 'You can shift a lot of your use to cheap times (Agile may suit you better)', 'You\'d struggle if prices rose sharply for weeks'],
+    extra: (S, k) => `
+  <section class="card compare tracker-recent" aria-labelledby="recent-h">
+    <h2 id="recent-h">Octopus Tracker prices for the last 14 days <span data-v="inRegion">${esc(S.regions[k].inRegion)}</span></h2>
+    <p class="lead">Electricity, per kWh, for paying by Direct Debit, newest first.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Day</th><th class="p">Price per kWh</th></tr></thead>
+        <tbody id="tracker-recent">${(S.regions[k].trackerRecent || []).map(([d, pr]) => `<tr><th scope="row">${esc(d)}</th><td class="p">${esc(pr)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </section>
+`,
     step2: '<b>Sign up for Octopus Tracker.</b> Once you\'re a customer, Octopus Energy needs to connect to your smart meter (usually around 14 days), then emails you to accept the Tracker terms and your tariff changes. This page covers Tracker for electricity only.',
     faqs: (S, k) => [
       ['How is the Octopus Tracker price set?', 'Each day\'s price comes from the previous day\'s wholesale electricity price, multiplied by a regional factor, plus a fixed amount for non-wholesale costs. Octopus Energy publishes the formula for each region in its Tracker FAQs.'],
       ['Can Octopus Tracker cost more than the price cap?', 'Yes. Octopus Energy says prices typically increase, likely double, in colder months, and the daily price is capped at 100p per kWh, a lot higher than the price cap. Octopus Energy says that if you can\'t afford prices to go that high, you\'re probably better off on a protected tariff such as Flexible Octopus.'],
       ['Is there an exit fee?', 'No. You can leave Octopus Tracker at any time without a fee. If you leave within the 12-month term, you can\'t rejoin for 9 months.'],
+      ['Why have Octopus Tracker prices gone up?', 'Tracker follows the wholesale market, which usually costs more in winter. Octopus Energy says prices tend to be lower in warmer months, then typically increase, likely double, in colder months.'],
+      ['What does a tracker tariff mean?', 'A tracker tariff\'s price follows the wholesale energy market instead of staying fixed. On Octopus Tracker the price changes every day, so when the market price drops, so does your bill, and when it rises, you feel it straight away.'],
       [`What is the Octopus Tracker price ${S.regions[k].inRegion}?`, `On ${S.trackerDate} it was ${S.regions[k].trackerToday} per kWh ${S.regions[k].inRegion}, with an average of ${S.regions[k].trackerAvg30} over the last 30 days.`],
     ],
   },
   {
     slug: 'flexible', name: 'Flexible Octopus', short: 'Flexible',
     oneLine: 'A standard variable tariff with no exit fees. No smart meter needed.',
-    title: 'Flexible Octopus Tariff: Rates, Exit Fees, Who It Suits',
-    description: 'Flexible Octopus explained: the variable tariff\'s unit rate and standing charge for your region, how often it changes, no exit fees, and how to switch.',
-    h1: 'Flexible Octopus: the simple variable tariff',
-    lede: 'Flexible Octopus is Octopus Energy\'s standard variable electricity tariff. The price usually changes every three months, there are no exit fees, and you don\'t need a smart meter.',
+    title: 'What Is a Flexible Tariff? Flexible Octopus Explained',
+    description: 'A flexible tariff is a variable tariff with no exit fees. How Flexible Octopus works, its rates for your region, Economy 7 night times, fixed v flexible.',
+    h1: 'What is a flexible tariff? Flexible Octopus explained',
+    lede: 'A flexible tariff is a variable energy tariff: your price can rise or fall, and you can leave without an exit fee. Flexible Octopus is Octopus Energy\'s flexible tariff. Its price changes every three months with wholesale energy, and you don\'t need a smart meter.',
     glance: (S, k, cap) => [
       ['How the price works', 'One unit rate that rises or falls every three months with wholesale energy'],
       ['Unit rate', `${v(S, k, 'flexUnit')} per kWh${cap ? ` (price cap: ${p1(cap.unitRate)})` : ''}`],
       ['Standing charge', `${v(S, k, 'flexStanding')} a day`],
       ['Exit fee', 'None'],
+      ['Economy 7 meters', 'A day rate and a cheaper rate for 7 hours overnight'],
       ['You need', 'No smart meter needed'],
     ],
     how: [
-      'You pay the same unit rate whatever the time of day. Octopus Energy says the price will rise or fall every three months with wholesale energy.',
+      'On a standard meter you pay one unit rate whatever the time of day. Octopus Energy says the price rises or falls every three months with wholesale energy, and that if the energy price cap falls, it lowers Flexible Octopus prices automatically.',
+      'Flexible Octopus is protected by Ofgem\'s energy price cap, and Octopus Energy says it keeps Flexible Octopus below the cap. If prices rise, Octopus Energy says you get plenty of notice, so you can change tariff.',
       'Flexible Octopus is also the tariff most people join on. You can move to Agile Octopus, Intelligent Octopus Go or Octopus Tracker later from your account, once you have a smart meter.',
     ],
     suits: ['You want a simple tariff with no exit fees', 'You don\'t have a smart meter yet', 'You aren\'t sure yet and want to join Octopus Energy first, then choose a smart tariff'],
     notFor: ['You have an electric car (Intelligent Octopus Go is usually much cheaper overnight)', 'You can shift a lot of use to cheap times (Agile may cost less)', 'You want your price fixed for a year (look at Octopus Energy\'s fixed tariffs)'],
+    extra: () => `
+  <section class="prose" aria-labelledby="e7-h">
+    <h2 id="e7-h">Flexible Octopus night rate and off-peak times (Economy 7)</h2>
+    <p>If you have an Economy 7 meter, Flexible Octopus has two prices: a day rate and a cheaper rate for 7 hours overnight. Octopus Energy says the cheaper hours are usually between 12am and 7am, and the day rate applies from 7am to 12am.</p>
+    <p>With a smart meter, Octopus Energy says the off-peak period is fixed at 00:30 to 07:30. It runs on UTC, so during British Summer Time it is 01:30 to 08:30. That may differ from the hours on an older meter.</p>
+    <p>Octopus Energy says Economy 7 typically saves money if you can use at least 30% of your electricity in the off-peak hours. If you use less at night, it suggests a single-rate tariff.</p>
+  </section>
+
+  <section class="prose" aria-labelledby="fixflex-h">
+    <h2 id="fixflex-h">Fixed or flexible: which should you choose?</h2>
+    <p><b>Flexible Octopus</b> has no exit fees or contract period, and your price falls automatically if the price cap falls. The catch, as Octopus Energy puts it: if the cost of energy rises, your bills rise too, and it\'s harder to budget.</p>
+    <p><b>Octopus Energy\'s fixed tariffs</b> lock your price for a set term, which its tariffs page says is 12 or 18 months, whatever the market does. If wholesale prices fall, you don\'t benefit, and exit fees might apply if you leave early.</p>
+    <p>Octopus Energy suggests a fixed tariff if you like to budget and want certainty, and a flexible tariff if you like transparency and are happy to see how prices change. If you have a smart meter and can use power at cheaper times, a smart tariff may cost less: <a href="/octopus-tariffs/tariff-finder/">use the tariff finder</a> to see which.</p>
+  </section>
+`,
     step2: '<b>Choose Flexible Octopus when you sign up.</b> That\'s it. If you get a smart meter later, you can switch to a smart tariff from your account.',
     faqs: (S, k) => [
-      ['Does Flexible Octopus have exit fees?', 'No. You can leave or change tariff at any time without a fee.'],
+      ['What does a flexible tariff mean?', 'A flexible tariff is a variable tariff: the price can go up or down, and there are no exit fees or contract period. On Flexible Octopus the price rises or falls every three months with wholesale energy.'],
+      ['Does Flexible Octopus have exit fees?', 'No. Octopus Energy says there are never any exit fees or contract periods on its variable tariff, so you can change tariff at any time.'],
+      ['What are the Flexible Octopus night rate times?', 'On an Economy 7 meter, Octopus Energy says the cheaper night rate usually runs for 7 hours between 12am and 7am. With a smart meter it is fixed at 00:30 to 07:30 UTC, which is 01:30 to 08:30 during British Summer Time.'],
+      ['Should I choose a fixed or flexible Octopus tariff?', 'Octopus Energy suggests fixed if you want price certainty for budgeting, and flexible if you want no exit fees and are happy for your price to follow the market. Fixed tariffs last 12 or 18 months and exit fees might apply.'],
       ['How often does the Flexible Octopus price change?', 'Octopus Energy says Flexible Octopus prices rise or fall every three months with wholesale energy.'],
       ['Do I need a smart meter for Flexible Octopus?', 'No. Flexible Octopus works with any meter. You need a smart meter only if you want to move to a smart tariff such as Agile Octopus later.'],
       [`What are the Flexible Octopus rates ${S.regions[k].inRegion}?`, `The unit rate is ${S.regions[k].flexUnit} per kWh and the standing charge is ${S.regions[k].flexStanding} a day, for Direct Debit customers.`],
@@ -402,7 +439,7 @@ ${p.slug === 'intelligent-octopus-go' ? `  <p class="calc-link"><a href="/${EV_P
     <h2 id="how-h">How ${esc(p.name)} works</h2>
     ${p.how.map((t) => `<p>${esc(t)}</p>`).join('\n    ')}
   </section>
-
+${p.extra ? p.extra(S, k) : ''}
   <section class="fit" aria-label="Who ${esc(p.name)} suits">
     <div class="card fit-yes"><h2>It may suit you if</h2><ul>${p.suits.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>
     <div class="card fit-no"><h2>Think twice if</h2><ul>${p.notFor.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>

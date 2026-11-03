@@ -89,6 +89,15 @@
     if (lastAnswers) showResult(lastAnswers, false);
     if (finderAnswers) showFinder(finderAnswers, false);
     if ($('ev-form')) renderEv();
+    var tr = $('tracker-recent');
+    if (tr && d.trackerRecent) {
+      tr.textContent = '';
+      d.trackerRecent.forEach(function (row) {
+        var r = document.createElement('tr'), th = document.createElement('th'), td = document.createElement('td');
+        th.scope = 'row'; th.textContent = row[0]; td.className = 'p'; td.textContent = row[1];
+        r.appendChild(th); r.appendChild(td); tr.appendChild(r);
+      });
+    }
   }
 
   function setupRegion() {
